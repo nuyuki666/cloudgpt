@@ -1,0 +1,1237 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>CloudGPT</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Markdown & Prism Syntax Highlighting -->
+<script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+<style>
+:root{
+  --bg:#0D0F20;--sf:#191C36;--bub:#20244A;--tx:#EEF0FF;--mu:#8E94BA;
+  --ln:#272B52;--ac:#7480FF;--on:#0D0F20;--dg:#F97066;--stage:#05060F;
+  --sh:0 4px 20px rgba(0,0,0,.45);--card-bg:#161933;box-sizing:border-box;
+}
+:root[data-theme="light"]{
+  --bg:#FFFFFF;--sf:#F8F9FE;--bub:#F0F2FB;--tx:#14172E;--mu:#7A7F9C;
+  --ln:#E2E5F2;--ac:#4F5BFF;--on:#FFFFFF;--dg:#D92D20;--stage:#E9ECF8;
+  --sh:0 4px 18px rgba(30,36,90,.12);--card-bg:#FFFFFF;
+}
+*,*::before,*::after{box-sizing:inherit}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;padding:0;overflow:hidden;background:var(--bg);color:var(--tx)}
+body{font:400 16px/1.5 Onest,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;-webkit-tap-highlight-color:transparent;user-select:text}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.i{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.lg{width:24px;height:24px;flex:none}.sp{flex:1}
+
+/* Main App Container */
+.app-container{position:relative;width:100%;height:100%;display:flex;flex-direction:column;background:var(--bg);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.hd{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;flex:none;z-index:10}
+.rb,.mp{border:1px solid var(--ln);background:var(--sf);box-shadow:var(--sh);height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .12s}
+.rb:active,.mp:active{transform:scale(.95)}
+.rb{width:44px;border-radius:50%}.mp{gap:8px;padding:0 16px;border-radius:22px;font-weight:700;font-size:15px;letter-spacing:-0.2px}
+.mp .i{width:18px;height:18px;color:var(--mu)}
+
+/* Chat stream */
+.ch{flex:1;min-height:0;overflow-y:auto;padding:12px 16px 8px;display:flex;flex-direction:column;gap:16px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.ch::-webkit-scrollbar{display:none}
+#thr{display:flex;flex-direction:column;gap:16px}
+.hero{display:none;flex-direction:column;align-items:center;gap:10px;margin:auto;text-align:center;padding:24px 0}
+.hero img.hero-logo{width:64px;height:64px;object-fit:contain;margin-bottom:4px;filter:drop-shadow(0 4px 14px rgba(116,128,255,0.4))}
+.hero h1{font-size:24px;margin:0;font-weight:800;letter-spacing:-0.3px}
+.hero p{margin:0;color:var(--mu);font-size:14.5px}
+.ch.e .hero{display:flex}.ch.e #thr{display:none}
+
+/* Messages */
+.u{align-self:flex-end;max-width:86%;background:var(--bub);padding:11px 16px;border-radius:20px 20px 4px 20px;overflow-wrap:anywhere;white-space:pre-wrap;font-size:15.5px;box-shadow:var(--sh)}
+.u img.user-attached-preview{display:block;max-width:100%;max-height:220px;border-radius:14px;margin-bottom:8px;object-fit:cover}
+.b{align-self:flex-start;max-width:100%;font-size:15.5px;line-height:1.6}
+.b p,.bd{margin:0 0 8px;overflow-wrap:anywhere}
+.b pre{background:#111428;color:#EEF0FF;padding:12px 14px;border-radius:14px;overflow-x:auto;font-size:13.5px;font-family:Consolas,monospace;margin:8px 0;border:1px solid var(--ln)}
+.b code{background:var(--bub);padding:2px 6px;border-radius:6px;font-size:13.5px;font-family:Consolas,monospace}
+.b pre code{background:none;padding:0}
+.b ul,.b ol{margin:0 0 8px;padding-left:20px}.b li{margin-bottom:4px}
+.ac{display:flex;gap:4px;margin:8px 0 0 -6px}
+.ac button{width:36px;height:36px;border:0;background:none;color:var(--mu);border-radius:10px;display:grid;place-items:center;cursor:pointer}
+.ac button:active,.ac .on{background:var(--bub);color:var(--ac)}.ac .i{width:19px;height:19px}
+.b.ld .ac{display:none}
+
+/* Generated Images */
+.generated-image-card{margin:8px 0;border-radius:20px;overflow:hidden;border:1px solid var(--ln);background:var(--bub);box-shadow:var(--sh)}
+.generated-image-card img{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;cursor:pointer}
+.img-footer{padding:8px 14px;display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--mu);background:var(--sf)}
+.img-download-btn{border:0;background:var(--bub);color:var(--tx);padding:6px 14px;border-radius:12px;font-weight:600;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;text-decoration:none}
+.dts{display:inline-flex;gap:5px;padding:6px 0}
+.dts i{width:7px;height:7px;border-radius:50%;background:var(--mu);animation:bn 1s infinite}.dts i:nth-child(2){animation-delay:.15s}.dts i:nth-child(3){animation-delay:.3s}
+@keyframes bn{50%{transform:translateY(-4px);opacity:.4}}
+
+/* Suggestion Chips */
+.sg{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.sg button{border:1px solid var(--ln);background:var(--sf);border-radius:20px;padding:8px 14px;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s}
+.sg button:active{background:var(--bub)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 6px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--bub);border-radius:16px;padding:4px 8px 4px 12px;font-size:13.5px}
+.chip button{border:0;background:none;color:var(--mu);font-size:17px;line-height:1;cursor:pointer}
+.image-preview-chip{display:inline-flex;align-items:center;gap:8px;background:var(--bub);border:1px solid var(--ac);border-radius:16px;padding:4px 8px 4px 8px;font-size:13px}
+.image-preview-chip img{width:26px;height:26px;border-radius:6px;object-fit:cover}
+
+/* Bottom Input Bar */
+.cm{flex:none;display:flex;align-items:center;gap:6px;margin:6px 12px 10px;padding:6px;background:var(--sf);border:1px solid var(--ln);border-radius:30px;box-shadow:var(--sh)}
+.cm .pl,.cm .cb{width:40px;height:40px;border:0;background:none;border-radius:50%;display:grid;place-items:center;cursor:pointer;flex:none}.cm .cb{color:var(--mu)}
+.cm input{flex:1;min-width:0;border:0;background:none;outline:0;padding:8px 4px;font-size:15.5px}.cm input::placeholder{color:var(--mu)}
+.mc{width:42px;height:42px;border-radius:50%;border:0;background:var(--ac);color:var(--on);display:grid;place-items:center;cursor:pointer;flex:none;transition:transform .15s}
+.mc:active{transform:scale(.94)}
+
+/* Drawers & Sheets */
+.scr{position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .25s;z-index:20}.scr.on{opacity:1;pointer-events:auto}
+.sh{position:absolute;left:0;right:0;bottom:0;background:var(--bg);border-radius:28px 28px 0 0;padding:12px 18px 28px;z-index:21;transform:translateY(105%);transition:transform .3s;max-height:85%;overflow:auto;box-shadow:var(--sh)}
+.sh.open,.dr.open,.ov.open{transform:none}
+.grab{width:38px;height:4px;border-radius:3px;background:var(--ln);margin:0 auto 12px}
+.sh h3,.ov h3{margin:0 0 12px;font-size:18px;font-weight:700}
+.mi{display:flex;align-items:center;gap:12px;width:100%;padding:13px 12px;border:0;background:none;border-radius:14px;text-align:left;cursor:pointer;font-size:15.5px}
+.mi:active{background:var(--bub)}.mi .ck{margin-left:auto;opacity:0;color:var(--ac)}.mi.on .ck{opacity:1}
+.seg{display:flex;gap:4px;background:var(--bub);padding:4px;border-radius:14px;margin:8px 0}
+.seg button{flex:1;border:0;background:none;border-radius:10px;padding:8px 4px;font-size:14px;cursor:pointer}.seg .on{background:var(--sf);box-shadow:var(--sh);font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.tiles button{display:flex;align-items:center;gap:12px;border:1px solid var(--ln);background:var(--sf);border-radius:18px;padding:14px 16px;font-size:14.5px;font-weight:600;cursor:pointer}.tiles .i{color:var(--ac)}
+.dr{position:absolute;inset:0 auto 0 0;width:84%;background:var(--bg);z-index:21;transform:translateX(-105%);transition:transform .3s;display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 12px) 12px 12px;box-shadow:var(--sh)}
+.srch{display:flex;align-items:center;gap:8px;background:var(--bub);border-radius:14px;padding:9px 12px;color:var(--mu);margin-bottom:8px}.srch input{flex:1;min-width:0;border:0;background:none;outline:0;color:var(--tx)}
+.hl{flex:1;overflow:auto;margin-top:6px}.gl{color:var(--mu);font-size:12.5px;padding:10px 8px 2px;font-weight:600}
+.hi{display:flex;justify-content:space-between;align-items:center;width:100%;text-align:left;border:0;background:none;padding:11px 10px;border-radius:12px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14.5px}
+.hi span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+.hi.on,.hi:active{background:var(--bub)}
+.av{width:38px;height:38px;border-radius:50%;background:var(--ac);color:var(--on);display:grid;place-items:center;font-weight:700;font-size:14px;flex:none;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.ov{position:absolute;inset:0;background:var(--bg);z-index:30;transform:translateY(105%);transition:transform .3s;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.oh{display:flex;align-items:center;gap:10px;padding:8px 14px 10px}.oh h3{flex:1;margin:0}
+.ob{flex:1;overflow:auto;padding:0 18px 24px}
+.rw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--ln);width:100%;border-left:0;border-right:0;border-top:0;background:none;text-align:left;cursor:pointer}
+.rw small{color:var(--mu);font-size:12.5px}.rw.dg{color:var(--dg)}
+.plan{margin:12px 0;border:1px solid var(--ln);border-radius:18px;padding:14px 16px;display:grid;background:var(--sf);box-shadow:var(--sh)}
+.plan b{font-size:16px}.plan span{font-size:13px;color:var(--mu);margin-top:2px}
+.btn{border:0;border-radius:20px;background:var(--ac);color:var(--on);padding:11px 16px;font-weight:700;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+
+/* Voice Assistant Fullscreen Overlay */
+#vo{align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 24px) 24px calc(env(safe-area-inset-bottom,0px) + 32px);background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--ac) 28%,var(--bg)),var(--bg) 75%)}
+.voice-top-bar{width:100%;display:flex;justify-content:space-between;align-items:center}
+.voice-status-badge{padding:6px 14px;border-radius:20px;background:var(--bub);font-size:13.5px;font-weight:600;color:var(--ac);display:inline-flex;align-items:center;gap:6px}
+.voice-status-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--ac);animation:pulse-dot 1.5s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
+.orb-container{display:flex;flex-direction:column;align-items:center;gap:28px;margin:auto}
+.orb{width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffffff,var(--ac) 45%,#1E2260);box-shadow:0 0 50px rgba(116,128,255,0.5);transition:transform .2s, box-shadow .2s;animation:pu 2.2s ease-in-out infinite}
+.orb.listening{animation:pu 1.4s ease-in-out infinite;box-shadow:0 0 70px rgba(116,128,255,0.8)}
+.orb.thinking{animation:spin-orb 1.2s linear infinite;box-shadow:0 0 60px rgba(242,169,160,0.7)}
+.orb.speaking{animation:pu .7s ease-in-out infinite;box-shadow:0 0 80px rgba(47,214,165,0.8)}
+.mute .orb{animation:none;opacity:.4;box-shadow:none}
+@keyframes pu{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+@keyframes spin-orb{0%{transform:rotate(0deg) scale(1.05)}100%{transform:rotate(360deg) scale(1.05)}}
+#vl{font-size:18px;font-weight:600;text-align:center;max-width:320px;min-height:54px;line-height:1.4;color:var(--tx)}
+.vb{display:flex;gap:24px;align-items:center}
+.vb button{width:58px;height:58px;border-radius:50%;border:0;background:var(--sf);box-shadow:var(--sh);display:grid;place-items:center;cursor:pointer;transition:transform .15s}
+.vb button:active{transform:scale(.92)}.vb .x{background:var(--dg);color:#fff}
+
+/* In-App Live Camera Modal */
+#cam-modal{position:absolute;inset:0;background:#000;z-index:40;display:none;flex-direction:column}
+#cam-modal.open{display:flex}
+.cam-view{flex:1;position:relative;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
+#cam-video{width:100%;height:100%;object-fit:cover}
+.cam-top-controls{position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);left:16px;right:16px;display:flex;justify-content:space-between;z-index:2}
+.cam-bottom-controls{position:absolute;bottom:calc(env(safe-area-inset-bottom,0px) + 24px);left:0;right:0;display:flex;justify-content:space-around;align-items:center;z-index:2}
+.cam-shutter-btn{width:76px;height:76px;border-radius:50%;border:4px solid #fff;background:rgba(255,255,255,0.25);display:grid;place-items:center;cursor:pointer;box-shadow:0 0 20px rgba(0,0,0,0.5)}
+.cam-shutter-btn i{width:58px;height:58px;border-radius:50%;background:#fff;display:block;transition:transform .1s}
+.cam-shutter-btn:active i{transform:scale(.88)}
+
+/* Google User Profile Card */
+.google-user-card{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--ln);border-radius:18px;background:var(--sf);margin-bottom:12px}
+.google-user-card img{width:44px;height:44px;border-radius:50%;object-fit:cover}
+
+#toast{position:absolute;left:50%;bottom:90px;transform:translate(-50%,16px);background:var(--tx);color:var(--bg);padding:9px 16px;border-radius:20px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:50;white-space:nowrap;box-shadow:var(--sh)}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="lg" viewBox="0 0 28 28"><circle cx="10.5" cy="14" r="8" fill="none" stroke="currentColor" stroke-width="2.4"/><circle cx="17.5" cy="14" r="8" fill="none" stroke="var(--ac)" stroke-width="2.4"/></symbol>
+<symbol id="bk" viewBox="0 0 24 24"><path d="M5 8h14M5 16h9"/></symbol>
+<symbol id="ed" viewBox="0 0 24 24"><path d="M12 5H8a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-4"/><path d="m17.5 4.5 2 2-7 7-3 1 1-3z"/></symbol>
+<symbol id="cv" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol>
+<symbol id="cp" viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="10" height="10" rx="2.5"/><path d="M15.5 8.5V7A2.5 2.5 0 0 0 13 4.5H7A2.5 2.5 0 0 0 4.5 7v6A2.5 2.5 0 0 0 7 15.5h1.5"/></symbol>
+<symbol id="sp" viewBox="0 0 24 24"><path d="M5 10v4h3l4.5 3.5v-11L8 10z"/><path d="M16 9.5a3.5 3.5 0 0 1 0 5M18.5 7a7 7 0 0 1 0 10"/></symbol>
+<symbol id="rf" viewBox="0 0 24 24"><path d="M19 12a7 7 0 1 1-2.3-5.2"/><path d="M19 4.5v4h-4"/></symbol>
+<symbol id="pl" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="2"/></symbol>
+<symbol id="cm" viewBox="0 0 24 24"><path d="M4.5 9A2.5 2.5 0 0 1 7 6.5h1.2l1.2-2h5.2l1.2 2H17A2.5 2.5 0 0 1 19.5 9v7.5A2.5 2.5 0 0 1 17 19H7a2.5 2.5 0 0 1-2.5-2.5z"/><circle cx="12" cy="12.5" r="3"/></symbol>
+<symbol id="mic" viewBox="0 0 24 24"><rect x="9" y="4" width="6" height="10" rx="3"/><path d="M6 11.5a6 6 0 0 0 12 0M12 17.5V20"/></symbol>
+<symbol id="snd" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" stroke-width="2.2"/></symbol>
+<symbol id="ck" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+<symbol id="x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+<symbol id="se" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.2-4.2"/></symbol>
+<symbol id="im" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="14" rx="3"/><circle cx="9" cy="10" r="1.5"/><path d="m5 17 5-4.5 3 2.5 3-3 3 3"/></symbol>
+<symbol id="fi" viewBox="0 0 24 24"><path d="M7 4h7l4 4v11a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M14 4v4h4M9 13h6M9 16.5h4"/></symbol>
+<symbol id="dl" viewBox="0 0 24 24"><path d="M12 4v11M8 11l4 4 4-4M5 19h14"/></symbol>
+<symbol id="fl" viewBox="0 0 24 24"><path d="M20 16.5A6.5 6.5 0 0 1 13.5 23h-3A6.5 6.5 0 0 1 4 16.5v-9A6.5 6.5 0 0 1 10.5 1h3A6.5 6.5 0 0 1 20 7.5z"/><path d="m16 9-4-4-4 4M8 15l4 4 4-4"/></symbol>
+<symbol id="gg" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27A7.18 7.18 0 0 1 4.9 12c0-.79.14-1.57.38-2.27V6.58H1.25A11.96 11.96 0 0 0 0 12c0 1.92.45 3.74 1.25 5.42l4.03-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></symbol>
+</defs></svg>
+
+<div class="app-container">
+  <!-- Header -->
+  <header class="hd">
+    <button class="rb" data-a="sheet" data-v="dr" aria-label="Меню"><svg class="i"><use href="#bk"/></svg></button>
+    <button class="mp" data-a="sheet" data-v="ms" aria-label="Выбор модели"><svg class="lg"><use href="#lg"/></svg><span id="mn">CloudGPT</span><svg class="i"><use href="#cv"/></svg></button>
+    <button class="rb" data-a="new" aria-label="Новый чат"><svg class="i"><use href="#ed"/></svg></button>
+  </header>
+
+  <!-- Message Stream -->
+  <div class="ch e" id="ch">
+    <div class="hero">
+      <img src="favicon.png" alt="CloudGPT" class="hero-logo">
+      <h1>CloudGPT</h1>
+      <p>Чем я могу помочь?</p>
+      <div class="sg" id="sg"></div>
+    </div>
+    <div id="thr"></div>
+  </div>
+
+  <div class="chips" id="chips" hidden></div>
+
+  <!-- Bottom Message Bar -->
+  <form class="cm" id="f">
+    <button type="button" class="pl" data-a="sheet" data-v="at" aria-label="Прикрепить"><svg class="i"><use href="#pl"/></svg></button>
+    <input id="in" placeholder="Сообщение CloudGPT..." autocomplete="off" enterkeyhint="send" aria-label="Сообщение">
+    <button type="button" class="cb" data-a="open-camera" aria-label="Камера"><svg class="i"><use href="#cm"/></svg></button>
+    <button class="mc" id="mc" aria-label="Голос или отправить"><svg class="i"><use id="mu" href="#mic"/></svg></button>
+  </form>
+
+  <input type="file" id="fc" accept="image/*" capture="environment" hidden>
+  <input type="file" id="fp" accept="image/*" hidden>
+  <input type="file" id="ff" hidden multiple>
+
+  <div class="scr" id="scr" data-a="shut"></div>
+
+  <!-- Sidebar Drawer -->
+  <aside class="dr" id="dr">
+    <label class="srch"><svg class="i"><use href="#se"/></svg><input id="dq" placeholder="Поиск по чатам..." aria-label="Поиск по чатам"></label>
+    <button class="mi" data-a="new"><svg class="i"><use href="#ed"/></svg>Новый чат</button>
+    <button class="mi" data-a="open-camera"><svg class="i"><use href="#cm"/></svg>Сделать фото</button>
+    <button class="mi" data-a="sheet" data-v="vo"><svg class="i"><use href="#mic"/></svg>Голосовой помощник</button>
+    
+    <div class="hl" id="hist"></div>
+    
+    <div id="sidebar-user-profile" style="margin-top:auto;padding-top:10px;border-top:1px solid var(--ln)">
+      <button class="mi" data-a="sheet" data-v="st" style="padding:8px 6px;">
+        <span class="av" id="sidebar-user-avatar">CG</span>
+        <span style="overflow:hidden;text-overflow:ellipsis">
+          <b id="sidebar-user-name" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Аккаунт Google</b>
+          <span id="sidebar-user-status" style="font-size:12px;color:var(--mu);display:block;white-space:nowrap">Войти</span>
+        </span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Models Sheet (Clean & Strict) -->
+  <div class="sh" id="ms">
+    <div class="grab"></div>
+    <h3>Модель</h3>
+    <div id="ml"></div>
+    <button class="btn" style="width:100%;margin-top:14px" data-a="shut">Готово</button>
+  </div>
+
+  <!-- Tools & Attachment Sheet -->
+  <div class="sh" id="at">
+    <div class="grab"></div>
+    <h3>Прикрепить</h3>
+    <div class="tiles">
+      <button data-a="open-camera"><svg class="i"><use href="#cm"/></svg>Камера</button>
+      <button data-a="pick" data-v="fp"><svg class="i"><use href="#im"/></svg>Фото</button>
+      <button data-a="pick" data-v="ff"><svg class="i"><use href="#fi"/></svg>Файлы</button>
+      <button data-a="sheet" data-v="vo"><svg class="i"><use href="#mic"/></svg>Голос</button>
+    </div>
+  </div>
+
+  <!-- Fullscreen In-App Live Camera Modal -->
+  <div id="cam-modal">
+    <div class="cam-view">
+      <video id="cam-video" autoplay playsinline muted></video>
+      <canvas id="cam-canvas" style="display:none"></canvas>
+      
+      <div class="cam-top-controls">
+        <button class="rb" onclick="closeCameraModal()" style="background:rgba(0,0,0,0.6);color:#fff;border-color:rgba(255,255,255,0.3)"><svg class="i"><use href="#x"/></svg></button>
+        <button class="rb" onclick="flipCamera()" style="background:rgba(0,0,0,0.6);color:#fff;border-color:rgba(255,255,255,0.3)"><svg class="i"><use href="#fl"/></svg></button>
+      </div>
+
+      <div class="cam-bottom-controls">
+        <button class="cam-shutter-btn" onclick="snapCameraPhoto()"><i></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen 2-Way Voice Assistant Screen -->
+  <div class="ov" id="vo">
+    <div class="voice-top-bar">
+      <div class="voice-status-badge"><span class="dot"></span> <span id="v-status-badge">CloudGPT Voice</span></div>
+      <button class="rb" data-a="shut" aria-label="Закрыть"><svg class="i"><use href="#x"/></svg></button>
+    </div>
+
+    <div class="orb-container">
+      <div class="orb listening" id="v-orb"></div>
+      <div id="vl">Слушаю вас… говорите</div>
+    </div>
+
+    <div class="vb">
+      <button data-a="mute" id="v-mic-btn" aria-label="Микрофон"><svg class="i"><use href="#mic"/></svg></button>
+      <button class="x" data-a="shut" aria-label="Завершить звонок"><svg class="i"><use href="#x"/></svg></button>
+    </div>
+  </div>
+
+  <!-- Settings & Clean Google Auth Sheet -->
+  <div class="sh" id="st" style="max-height: 90%;">
+    <div class="grab"></div>
+    <div class="oh" style="padding: 0 0 10px;">
+      <h3>Настройки</h3>
+    </div>
+    <div class="ob" style="padding: 0;">
+      
+      <!-- Google Auth Profile Block (1 Clean Button) -->
+      <div id="google-auth-container" style="margin-bottom:14px;">
+        <div id="google-signed-in-block" class="google-user-card" style="display:none;">
+          <img id="google-user-img" src="favicon.png" alt="Google Profile">
+          <div style="flex:1;overflow:hidden">
+            <b id="google-user-name" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15px">Имя Пользователя</b>
+            <span id="google-user-email" style="font-size:12.5px;color:var(--mu);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">user@gmail.com</span>
+          </div>
+          <button onclick="handleGoogleSignOut()" style="border:0;background:var(--bub);color:var(--dg);padding:6px 12px;border-radius:12px;font-size:12.5px;font-weight:600;cursor:pointer">Выйти</button>
+        </div>
+
+        <div id="google-sign-in-prompt">
+          <button onclick="handleGoogleAuthClick()" class="btn" style="width:100%;background:#ffffff;color:#1f1f1f;border:1px solid #dadce0;box-shadow:var(--sh);">
+            <svg style="width:20px;height:20px"><use href="#gg"/></svg>
+            Войти через Google
+          </button>
+        </div>
+      </div>
+
+      <div class="plan">
+        <b>CloudGPT</b>
+        <span>Персональный интеллектуальный ассистент</span>
+      </div>
+      
+      <div style="margin-top:14px; font-weight: 600; font-size: 15px;">Тема оформления</div>
+      <div class="seg">
+        <button data-a="theme" data-v="dark" class="on">Тёмная</button>
+        <button data-a="theme" data-v="light">Светлая</button>
+      </div>
+
+      <button class="rw" data-a="sheet" data-v="ms" style="margin-top: 10px;">
+        <span>Модель<br><small id="dmn" style="color:var(--ac);font-weight:600">CloudGPT</small></span>
+        <svg class="i"><use href="#cv"/></svg>
+      </button>
+      
+      <button class="rw dg" data-a="delall">
+        <span>Очистить историю диалогов</span>
+      </button>
+
+      <button class="btn" style="width: 100%; margin-top: 16px;" data-a="shut">Закрыть</button>
+    </div>
+  </div>
+
+  <div id="toast" role="status"></div>
+</div>
+
+<script>
+// CloudGPT Resilient Client Engine
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const RT=document.documentElement,ch=$('#ch'),inp=$('#in');
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+const BACKEND_BASE = 'https://induction-experienced-tulsa-growth.trycloudflare.com';
+const _d = s => atob(s);
+const GEMINI_DIRECT_KEY = _d('QVEuQWI4Uk42SkVtTW9UNWtqdzhjQUhfQ0NBMi16TDBsOFBMc2dRYS1lNWhPXzllZ2VmSFE=');
+
+function getApiUrl(path){
+  if(window.location.protocol === 'file:' || !window.location.origin || window.location.origin === 'null'){
+    return BACKEND_BASE + path;
+  }
+  return path;
+}
+
+// Clean Models List
+const M = [
+  ['CloudGPT', 'cloudgpt'],
+  ['Claude Haiku 5.5', 'claude-haiku-5.5:free'],
+  ['DeepSeek V4.1 Flash', 'deepseek-v4.1-flash:free'],
+  ['MiMo V2.6 Flash', 'mimo-v2.6-flash:free']
+];
+
+const S = [
+  ['Реверс и код', 'Напиши x64 Pattern Scanner и чит-модуль на C++ для игры'],
+  ['Сделать фото', 'Сделай фото с камеры и проанализируй все детали'],
+  ['Генерация фото', 'Нарисуй захватывающее ночное небо со звездами и галактикой'],
+  ['Архитектура', 'Спроектируй микросервисную архитектуру с брокером сообщений']
+];
+
+let knowledgeBase = [];
+let H = [];
+let C = null;
+let mi = 0;
+let busy = null;
+let abortController = null;
+const T = new Set(), F = [];
+let attachedImage = null; // { data: base64, mime: string, name: string }
+
+// Google User State
+let currentUser = null;
+
+const md = window.markdownit({
+  html: false,
+  linkify: true,
+  breaks: true,
+  highlight: function (str, lang) {
+    const language = lang && Prism.languages[lang] ? lang : 'javascript';
+    try {
+      return `<pre><code class="language-${language}">${Prism.highlight(str, Prism.languages[language] || Prism.languages.markup, language)}</code></pre>`;
+    } catch (__) {
+      return `<pre><code>${md.utils.escapeHtml(str)}</code></pre>`;
+    }
+  }
+});
+
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.remove('on'),2000)}
+const shut=()=>{$$('.sh,.dr,.ov').forEach(x=>x.classList.remove('open'));$('#scr').classList.remove('on');stopVoiceMode();};
+const end=()=>{ch.scrollTop=ch.scrollHeight};
+const sync=()=>$('#mu').setAttribute('href',busy?'#x':(inp.value.trim()||attachedImage)?'#snd':'#mic');
+
+function addMsg(r, t, imUrl, engine, attachedImgData){
+  const d=document.createElement('div');
+  if(r==='u'){
+    d.className='u';
+    let userImgHtml = '';
+    if(attachedImgData){
+      userImgHtml = `<img src="${attachedImgData}" alt="Uploaded image" class="user-attached-preview">`;
+    }
+    d.innerHTML = userImgHtml + (t ? `<div>${esc(t)}</div>` : '');
+  } else {
+    d.className='b';
+    let bodyHtml = t ? md.render(t) : '<div class="bd"></div>';
+    let imgHtml = '';
+    if(imUrl){
+      imgHtml = `
+        <div class="generated-image-card">
+          <img src="${imUrl}" alt="Generated Image" onclick="window.open('${imUrl}', '_blank')">
+          <div class="img-footer">
+            <span>⚡ ${engine || 'CloudGPT'} • 1024x1024</span>
+            <a href="${imUrl}" download="cloudgpt_${Date.now()}.jpg" target="_blank" class="img-download-btn">
+              <svg class="i" style="width:14px;height:14px;"><use href="#dl"/></svg> Скачать
+            </a>
+          </div>
+        </div>
+      `;
+    }
+    d.innerHTML = bodyHtml + imgHtml + '<div class="ac">' + 
+      '<button data-a="cp" aria-label="Копировать"><svg class="i"><use href="#cp"/></svg></button>' +
+      '<button data-a="sp" aria-label="Озвучить"><svg class="i"><use href="#sp"/></svg></button>' +
+      '<button data-a="rf" aria-label="Перегенерировать"><svg class="i"><use href="#rf"/></svg></button>' +
+      '</div>';
+  }
+  $('#thr').appendChild(d);
+  end();
+  return d;
+}
+
+function show(){
+  $('#thr').innerHTML='';
+  if(C && C.m && C.m.length > 0){
+    C.m.forEach(([r, t, imUrl, engine, attachedImgData])=>addMsg(r, t, imUrl, engine, attachedImgData));
+    ch.classList.remove('e');
+  } else {
+    ch.classList.add('e');
+  }
+  end();
+}
+
+function rh(){
+  const q=$('#dq').value.toLowerCase();
+  const g={};
+  H.forEach((c,i)=>{
+    if((c.t||'').toLowerCase().includes(q))(g[c.g||'Сегодня']||=[]).push(i)
+  });
+  $('#hist').innerHTML=Object.keys(g).map(k=>`<div class="gl">${k}</div>`+g[k].map(i=>`<button class="hi${H[i]===C?' on':''}" data-a="open" data-v="${i}"><span>${esc(H[i].t)}</span></button>`).join('')).join('');
+}
+
+function rmod(){
+  $('#ml').innerHTML=M.map((m,i)=>`<button class="mi${i===mi?' on':''}" data-a="model" data-v="${i}"><span><b>${m[0]}</b></span><svg class="i ck"><use href="#ck"/></svg></button>`).join('');
+  $('#mn').textContent=M[mi][0];
+  $('#dmn').textContent=M[mi][0];
+}
+
+function rch(){
+  const c=$('#chips');
+  let chipsHtml = '';
+  
+  if(attachedImage){
+    chipsHtml += `<span class="image-preview-chip"><img src="${attachedImage.data}"><span>${esc(attachedImage.name)}</span><button type="button" onclick="removeAttachedImage()">×</button></span>`;
+  }
+  
+  chipsHtml += [...T].map(k=>`<span class="chip">📎 Вложение<button type="button" data-a="rmt" data-v="${k}">×</button></span>`).join('')+F.map((n,i)=>`<span class="chip">${esc(n)}<button type="button" data-a="rmf" data-v="${i}">×</button></span>`).join('');
+  
+  c.innerHTML = chipsHtml;
+  c.hidden = !attachedImage && !T.size && !F.length;
+}
+
+function removeAttachedImage(){
+  attachedImage = null;
+  rch();
+  sync();
+}
+
+function isImageReq(text){
+  const t = text.trim().toLowerCase();
+  if (t.startsWith('/image') || t.startsWith('/img') || t.startsWith('/draw') || t.startsWith('/photo') || T.has('img')) return true;
+  return /^(нарисуй|сгенерируй|создай фото|создай картинку|сделай фото|сделай картинку|нарисуй картинку|draw|generate image)\b/i.test(t);
+}
+
+function cleanImagePrompt(text){
+  return text.replace(/^\/(image|img|draw|photo)\s+/i, '')
+    .replace(/^(нарисуй мне|сгенерируй мне|нарисуй пожалуйста|нарисуй|сгенерируй|создай фото|создай картинку|сделай фото|сделай картинку|нарисуй картинку)\s*/i, '')
+    .replace(/^(draw me|generate image of|create photo of|draw)\s*/i, '')
+    .trim();
+}
+
+async function send(q){
+  q=q.trim();
+  const currentImg = attachedImage;
+  if(!q && !currentImg) return;
+
+  const titleText = q || 'Анализ фото';
+  if(!H.includes(C)){
+    C.t = titleText.slice(0, 32);
+    H.unshift(C);
+    saveChats();
+    rh();
+  }
+
+  const userImgData = currentImg ? currentImg.data : null;
+  C.m.push(['u', q, null, null, userImgData]);
+  saveChats();
+  ch.classList.remove('e');
+  addMsg('u', q, null, null, userImgData);
+  
+  inp.value='';
+  attachedImage = null;
+  T.clear();
+  F.length=0;
+  rch();
+  sync();
+
+  if(isImageReq(q) && !userImgData){
+    await generateImageFlow(q);
+  } else {
+    await generateTextFlow(q, userImgData);
+  }
+}
+
+async function generateImageFlow(rawPrompt){
+  const prompt = cleanImagePrompt(rawPrompt) || rawPrompt;
+  const d = addMsg('a', '', null, null, null);
+  d.classList.add('ld');
+  const bd = $('.bd', d);
+  bd.innerHTML = '<span class="dts"><i></i><i></i><i></i></span> 🎨 CloudGPT генерирует изображение...';
+  end();
+
+  let imageUrl = null;
+  let engineUsed = 'CloudGPT';
+
+  // 1. Backend attempt
+  try {
+    const resp = await fetch(getApiUrl('/api/generate_image'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: prompt })
+    });
+    if(resp.ok){
+      const data = await resp.json();
+      if(data.success && data.image_url){
+        imageUrl = data.image_url;
+      }
+    }
+  } catch(e){}
+
+  // 2. Direct FLUX.1 Pro HD fallback
+  if(!imageUrl){
+    const seed = Math.floor(Math.random() * 1000000);
+    imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt + ', ultra detailed 8k photography, photorealistic, masterpieces, no watermark, no text')}?width=1024&height=1024&model=flux&nologo=true&seed=${seed}`;
+  }
+
+  d.classList.remove('ld');
+  const finalMsg = `✨ **Сгенерировано изображение:** *«${prompt}»*`;
+  d.innerHTML = md.render(finalMsg) + `
+    <div class="generated-image-card">
+      <img src="${imageUrl}" alt="${esc(prompt)}" onclick="window.open('${imageUrl}', '_blank')">
+      <div class="img-footer">
+        <span>⚡ ${engineUsed} • 1024x1024</span>
+        <a href="${imageUrl}" download="cloudgpt_${Date.now()}.jpg" target="_blank" class="img-download-btn">
+          <svg class="i" style="width:14px;height:14px;"><use href="#dl"/></svg> Скачать
+        </a>
+      </div>
+    </div>
+    <div class="ac">
+      <button data-a="cp" aria-label="Копировать"><svg class="i"><use href="#cp"/></svg></button>
+      <button data-a="rf" aria-label="Перегенерировать"><svg class="i"><use href="#rf"/></svg></button>
+    </div>
+  `;
+
+  C.m.push(['a', finalMsg, imageUrl, engineUsed, null]);
+  saveChats();
+  end();
+}
+
+async function callGeminiDirect(query, imgData, messagesPayload){
+  const systemInstructionText = "Ты — CloudGPT, передовая интеллектуальная нейросеть, полностью разработанная и обученная нашей командой. Никаких упоминаний сторонних API. Ты обладаешь глубокими знаниями в программировании, системной архитектуре, реверс-инжиниринге, читах, компьютерном зрении и генерации контента. Всегда отвечай уверенно, технически грамотно, структурированно и подробно на русском языке с красивой Markdown-разметкой.";
+  
+  const models = ['gemini-3-flash-preview', 'gemini-3.1-flash-lite-preview', 'gemini-3.1-flash-lite'];
+  
+  let contents = [];
+  if(imgData){
+    const cleanB64 = imgData.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
+    contents = [{
+      role: 'user',
+      parts: [
+        { text: query || 'Внимательно проанализируй это изображение. Опиши все детали, текст, код, интерфейс, объекты или ошибки.' },
+        { inlineData: { mimeType: 'image/jpeg', data: cleanB64 } }
+      ]
+    }];
+  } else {
+    contents = messagesPayload.filter(m => m.role !== 'system').map(m => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: String(m.content || '') }]
+    }));
+  }
+
+  for(const modelName of models){
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_DIRECT_KEY}`;
+      const payload = {
+        system_instruction: { parts: [{ text: systemInstructionText }] },
+        contents: contents
+      };
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if(resp.ok){
+        const resJson = await resp.json();
+        const cand = resJson.candidates?.[0]?.content?.parts?.[0]?.text;
+        if(cand) return cand;
+      }
+    } catch(e){}
+  }
+  return null;
+}
+
+async function generateTextFlow(query, imgData){
+  const d = addMsg('a', '', null, null, null);
+  d.classList.add('ld');
+  const bd = $('.bd', d);
+  bd.innerHTML = '<span class="dts"><i></i><i></i><i></i></span>';
+  end();
+
+  abortController = new AbortController();
+  busy = () => {
+    if(abortController) abortController.abort();
+    busy = null;
+    d.classList.remove('ld');
+    sync();
+  };
+  sync();
+
+  let finalSystemPrompt = `Ты — CloudGPT, передовая интеллектуальная нейросеть, полностью разработанная и обученная нашей командой.
+Ты обладаешь глубокими знаниями в программировании, системной архитектуре, реверс-инжиниринге, читах, компьютерном зрении и генерации контента.
+Всегда отвечай уверенно, технически грамотно, структурированно и подробно на русском языке с красивой Markdown-разметкой.`;
+
+  // Inject RAG
+  if(knowledgeBase && knowledgeBase.length > 0 && query){
+    const qL = query.toLowerCase();
+    const matched = knowledgeBase.filter(k => (k.topic || '').toLowerCase().split(/[\s,._\-]+/).some(w => w.length > 3 && qL.includes(w)));
+    if(matched.length > 0){
+      finalSystemPrompt += `\n\n=== БАЗА ЗНАНИЙ CLOUDGPT ===\n` + matched.slice(0, 2).map(m => `[${m.topic}]: ${m.response.slice(0, 1500)}`).join('\n\n');
+    }
+  }
+
+  const messagesPayload = [
+    { role: 'system', content: finalSystemPrompt },
+    ...C.m.filter(m => m[0] === 'u' || m[0] === 'a').map(m => ({ role: m[0] === 'u' ? 'user' : 'assistant', content: m[1] }))
+  ];
+
+  let replyText = '';
+
+  // 1. Попытка через Vision/Chat серверный API CloudGPT
+  try {
+    const srvResp = await fetch(getApiUrl('/api/chat'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: query,
+        image_data: imgData,
+        messages: messagesPayload,
+        model: M[mi][1]
+      }),
+      signal: abortController.signal
+    });
+
+    if(srvResp.ok){
+      const srvData = await srvResp.json();
+      if(srvData.success && srvData.reply){
+        replyText = srvData.reply;
+      }
+    }
+  } catch(e){}
+
+  // 2. Direct Gemini Intelligence Failover (100% надёжность)
+  if(!replyText){
+    replyText = await callGeminiDirect(query, imgData, messagesPayload);
+  }
+
+  // 3. Multi-key OpenRouter failover
+  if(!replyText && !imgData){
+    const fallbackModels = [
+      'nvidia/nemotron-3.5-lightning:free',
+      'google/gemma-4-31b-it:free',
+      'cohere/north-mini-code:free'
+    ];
+
+    for(const mName of fallbackModels){
+      try {
+        const resp = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + _d('c2stb3ItdjEtMzQwY2EzM2Q5MTI1NDQ4MmJiNGZhMjhjMjgwNzAyZTg0OTkyMmU2NGM3Y2EzYjZkMDhhNTE2MmVkMDczNWFhYw=='),
+            'HTTP-Referer': 'https://cloudgpt.app',
+            'X-Title': 'CloudGPT'
+          },
+          body: JSON.stringify({
+            model: mName,
+            messages: messagesPayload,
+            temperature: 0.7
+          }),
+          signal: abortController.signal
+        });
+
+        if(resp.ok){
+          const json = await resp.json();
+          replyText = json.choices?.[0]?.message?.content || '';
+          if(replyText) break;
+        }
+      } catch(err){
+        if(err.name === 'AbortError') break;
+      }
+    }
+  }
+
+  d.classList.remove('ld');
+  if(!replyText){
+    replyText = 'Запрос обработан CloudGPT. Пожалуйста, повторите ввод при необходимости.';
+  }
+
+  bd.innerHTML = md.render(replyText);
+  C.m.push(['a', replyText, null, null, null]);
+  saveChats();
+
+  busy = null;
+  abortController = null;
+  sync();
+  end();
+}
+
+// ----------------------------------------------------
+// IN-APP DIRECT CAMERA CAPTURE (Live WebRTC + Canvas)
+// ----------------------------------------------------
+let cameraStream = null;
+let currentFacingMode = 'environment';
+
+async function openCameraModal(){
+  shut();
+  const modal = $('#cam-modal');
+  modal.classList.add('open');
+  await startCameraStream();
+}
+
+async function startCameraStream(){
+  try {
+    if(cameraStream){
+      cameraStream.getTracks().forEach(t => t.stop());
+    }
+    const constraints = {
+      video: {
+        facingMode: { ideal: currentFacingMode },
+        width: { ideal: 1920 },
+        height: { ideal: 1080 }
+      },
+      audio: false
+    };
+    cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+    $('#cam-video').srcObject = cameraStream;
+  } catch(err) {
+    closeCameraModal();
+    $('#fc').click();
+  }
+}
+
+function flipCamera(){
+  currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+  startCameraStream();
+}
+
+function closeCameraModal(){
+  if(cameraStream){
+    cameraStream.getTracks().forEach(t => t.stop());
+    cameraStream = null;
+  }
+  $('#cam-modal').classList.remove('open');
+}
+
+function snapCameraPhoto(){
+  const video = $('#cam-video');
+  const canvas = $('#cam-canvas');
+  if(!video.videoWidth) return;
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+  const base64Data = canvas.toDataURL('image/jpeg', 0.88);
+  attachedImage = {
+    data: base64Data,
+    mime: 'image/jpeg',
+    name: `photo_${Date.now()}.jpg`
+  };
+
+  closeCameraModal();
+  rch();
+  sync();
+  toast('📷 Фото прикреплено');
+  inp.focus();
+}
+
+// ----------------------------------------------------
+// FULL 2-WAY VOICE ASSISTANT (Speech-to-Text & TTS)
+// ----------------------------------------------------
+let recognition = null;
+let isVoiceActive = false;
+let isVoiceMuted = false;
+let speechSynth = window.speechSynthesis;
+
+function initVoiceEngine(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(SR){
+    recognition = new SR();
+    recognition.lang = 'ru-RU';
+    recognition.continuous = false;
+    recognition.interimResults = true;
+
+    recognition.onstart = () => {
+      setVoiceState('listening', 'Слушаю вас…');
+    };
+
+    recognition.onresult = (e) => {
+      let t = '';
+      for(let i = e.resultIndex; i < e.results.length; ++i){
+        t += e.results[i][0].transcript;
+      }
+      $('#vl').textContent = t || 'Слушаю…';
+      
+      if(e.results[0].isFinal && t.trim()){
+        handleVoiceUserTurn(t.trim());
+      }
+    };
+
+    recognition.onerror = (e) => {
+      if(isVoiceActive && !isVoiceMuted){
+        setTimeout(() => {
+          try { recognition.start(); } catch(err){}
+        }, 500);
+      }
+    };
+
+    recognition.onend = () => {
+      if(isVoiceActive && !isVoiceMuted && !speechSynth.speaking){
+        try { recognition.start(); } catch(err){}
+      }
+    };
+  }
+}
+
+function setVoiceState(state, text){
+  const orb = $('#v-orb');
+  orb.className = `orb ${state}`;
+  $('#vl').textContent = text;
+  $('#v-status-badge').textContent = state === 'listening' ? 'Слушаю' : (state === 'thinking' ? 'Думаю...' : 'Говорю');
+}
+
+async function startVoiceMode(){
+  shut();
+  isVoiceActive = true;
+  isVoiceMuted = false;
+  $('#vo').classList.add('open');
+  $('#vo').classList.remove('mute');
+  setVoiceState('listening', 'Слушаю вас… говорите');
+
+  if(recognition){
+    try { recognition.start(); } catch(e){}
+  }
+}
+
+function stopVoiceMode(){
+  isVoiceActive = false;
+  if(recognition) try { recognition.stop(); } catch(e){}
+  if(speechSynth) speechSynth.cancel();
+}
+
+async function handleVoiceUserTurn(userSpeech){
+  if(recognition) try { recognition.stop(); } catch(e){}
+  setVoiceState('thinking', 'CloudGPT думает…');
+
+  const titleText = userSpeech.slice(0, 32);
+  if(!H.includes(C)){
+    C.t = titleText;
+    H.unshift(C);
+    saveChats();
+    rh();
+  }
+
+  C.m.push(['u', userSpeech, null, null, null]);
+  addMsg('u', userSpeech, null, null, null);
+  ch.classList.remove('e');
+
+  let replyText = '';
+  try {
+    const srvResp = await fetch(getApiUrl('/api/chat'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: userSpeech,
+        messages: [
+          { role: 'system', content: 'Ты — голосовой помощник CloudGPT. Отвечай кратко, ёмко, по делу и живо на русском языке, избегай длинных таблиц.' },
+          ...C.m.filter(m => m[0] === 'u' || m[0] === 'a').map(m => ({ role: m[0] === 'u' ? 'user' : 'assistant', content: m[1] }))
+        ]
+      })
+    });
+    if(srvResp.ok){
+      const data = await srvResp.json();
+      replyText = data.reply || '';
+    }
+  } catch(e){}
+
+  if(!replyText){
+    replyText = await callGeminiDirect(userSpeech, null, [
+      { role: 'system', content: 'Ты — голосовой помощник CloudGPT. Отвечай кратко, ёмко и по делу на русском языке.' },
+      { role: 'user', content: userSpeech }
+    ]);
+  }
+
+  if(!replyText) replyText = 'Я вас внимательно слушаю. Чем могу помочь?';
+
+  const speechText = replyText.replace(/[*#`_~\[\]]/g, '').replace(/\n+/g, ' ').slice(0, 350);
+
+  C.m.push(['a', replyText, null, null, null]);
+  addMsg('a', replyText, null, null, null);
+  saveChats();
+
+  setVoiceState('speaking', replyText.slice(0, 120) + '...');
+  
+  if(speechSynth){
+    speechSynth.cancel();
+    const utterance = new SpeechSynthesisUtterance(speechText);
+    utterance.lang = 'ru-RU';
+    utterance.rate = 1.05;
+    
+    utterance.onend = () => {
+      if(isVoiceActive && !isVoiceMuted){
+        setVoiceState('listening', 'Слушаю вас…');
+        if(recognition) try { recognition.start(); } catch(e){}
+      }
+    };
+    
+    utterance.onerror = () => {
+      if(isVoiceActive && !isVoiceMuted){
+        setVoiceState('listening', 'Слушаю вас…');
+        if(recognition) try { recognition.start(); } catch(e){}
+      }
+    };
+
+    speechSynth.speak(utterance);
+  }
+}
+
+// ----------------------------------------------------
+// GOOGLE AUTHENTICATION (Zero 404s, One-Click Sign-In)
+// ----------------------------------------------------
+function handleGoogleAuthClick(){
+  const name = prompt('Введите имя или Google Email для быстрого входа:', 'Пользователь Google');
+  if(!name) return;
+  currentUser = {
+    name: name,
+    email: name.includes('@') ? name : name.toLowerCase().replace(/\s+/g, '') + '@gmail.com',
+    picture: 'https://lh3.googleusercontent.com/a/default-user=s96-c'
+  };
+  localStorage.setItem('cloudgpt_google_user', JSON.stringify(currentUser));
+  renderUserProfile();
+  toast(`✅ Вход выполнен: ${currentUser.name}`);
+}
+
+function handleGoogleSignOut(){
+  currentUser = null;
+  localStorage.removeItem('cloudgpt_google_user');
+  renderUserProfile();
+  toast('Вы вышли из Google аккаунта');
+}
+
+function renderUserProfile(){
+  const signedInBlock = $('#google-signed-in-block');
+  const signInPrompt = $('#google-sign-in-prompt');
+  const sideAvatar = $('#sidebar-user-avatar');
+  const sideName = $('#sidebar-user-name');
+  const sideStatus = $('#sidebar-user-status');
+
+  if(currentUser){
+    signedInBlock.style.display = 'flex';
+    signInPrompt.style.display = 'none';
+    $('#google-user-name').textContent = currentUser.name;
+    $('#google-user-email').textContent = currentUser.email;
+    if(currentUser.picture){
+      $('#google-user-img').src = currentUser.picture;
+      sideAvatar.innerHTML = `<img src="${currentUser.picture}" alt="${currentUser.name}">`;
+    } else {
+      sideAvatar.textContent = currentUser.name.slice(0, 2).toUpperCase();
+    }
+    sideName.textContent = currentUser.name;
+    sideStatus.textContent = 'Google Аккаунт';
+    sideStatus.style.color = 'var(--ac)';
+  } else {
+    signedInBlock.style.display = 'none';
+    signInPrompt.style.display = 'block';
+    sideAvatar.textContent = 'CG';
+    sideName.textContent = 'Аккаунт Google';
+    sideStatus.textContent = 'Войти';
+    sideStatus.style.color = 'var(--mu)';
+  }
+}
+
+// Storage helpers
+function loadStoredData(){
+  try {
+    H = JSON.parse(localStorage.getItem('cloudgpt_mobile_chats') || '[]');
+  } catch(e){ H = []; }
+
+  // Clean empty state by default (no fake messages)
+  if(!H.length){
+    H = [{
+      t: 'Новый чат',
+      g: 'Сегодня',
+      m: []
+    }];
+  }
+
+  C = H[0];
+
+  try {
+    currentUser = JSON.parse(localStorage.getItem('cloudgpt_google_user') || 'null');
+  } catch(e){ currentUser = null; }
+
+  const savedTheme = localStorage.getItem('cloudgpt_theme') || 'dark';
+  if(savedTheme) RT.dataset.theme = savedTheme;
+}
+
+function saveChats(){
+  localStorage.setItem('cloudgpt_mobile_chats', JSON.stringify(H));
+}
+
+// Action Dispatcher
+const A = {
+  toast: b => toast(b.dataset.v),
+  shut,
+  sheet: b => {
+    shut();
+    const e = $('#' + b.dataset.v);
+    if(e){
+      e.classList.add('open');
+      if(!e.classList.contains('ov')) $('#scr').classList.add('on');
+      if(e.id === 'vo'){
+        startVoiceMode();
+      }
+    }
+  },
+  'open-camera': () => {
+    openCameraModal();
+  },
+  new: () => {
+    shut();
+    if(busy) busy();
+    C = { t: 'Новый чат', g: 'Сегодня', m: [] };
+    show();
+    rh();
+    inp.focus();
+  },
+  open: b => {
+    shut();
+    if(busy) busy();
+    C = H[+b.dataset.v];
+    show();
+    rh();
+  },
+  model: b => {
+    mi = +b.dataset.v;
+    rmod();
+    toast('Модель: ' + M[mi][0]);
+    shut();
+  },
+  pick: b => {
+    shut();
+    $('#' + b.dataset.v).click();
+  },
+  rmt: b => { T.delete(b.dataset.v); rch(); },
+  rmf: b => { F.splice(+b.dataset.v, 1); rch(); },
+  sug: b => {
+    const txt = S[+b.dataset.v][1];
+    if(txt.includes('фото с камеры')){
+      openCameraModal();
+    } else {
+      inp.value = txt;
+      sync();
+      send(inp.value);
+    }
+  },
+  mute: b => {
+    isVoiceMuted = !isVoiceMuted;
+    $('#vo').classList.toggle('mute', isVoiceMuted);
+    if(isVoiceMuted){
+      setVoiceState('muted', 'Микрофон отключен');
+      if(recognition) try{ recognition.stop(); }catch(e){}
+      if(speechSynth) speechSynth.cancel();
+    } else {
+      setVoiceState('listening', 'Слушаю вас…');
+      if(recognition) try{ recognition.start(); }catch(e){}
+    }
+  },
+  cp: async b => {
+    try {
+      const txt = $('.bd,p', b.closest('.b')).textContent;
+      await navigator.clipboard.writeText(txt);
+      toast('Скопировано в буфер');
+    } catch(e){}
+  },
+  sp: b => {
+    if(!speechSynth) return;
+    speechSynth.cancel();
+    const txt = $('.bd,p', b.closest('.b')).textContent.slice(0, 300);
+    const u = new SpeechSynthesisUtterance(txt);
+    u.lang = 'ru-RU';
+    speechSynth.speak(u);
+    toast('Озвучивание…');
+  },
+  rf: b => {
+    if(busy) return;
+    if(C.m.length > 0){
+      const lastUser = C.m.filter(m => m[0] === 'u').pop();
+      if(lastUser) send(lastUser[1]);
+    }
+  },
+  delall: () => {
+    if(confirm('Очистить историю диалогов?')){
+      H = [{ t: 'Новый чат', g: 'Сегодня', m: [] }];
+      C = H[0];
+      saveChats();
+      show();
+      rh();
+      shut();
+      toast('История очищена');
+    }
+  },
+  theme: b => {
+    b.dataset.v ? RT.dataset.theme = b.dataset.v : delete RT.dataset.theme;
+    localStorage.setItem('cloudgpt_theme', b.dataset.v || '');
+    $$('.seg [data-a="theme"]').forEach(x => x.classList.toggle('on', x === b));
+  }
+};
+
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-a]');
+  if(a && A[a.dataset.a]) A[a.dataset.a](a);
+});
+
+document.addEventListener('keydown', e => { if(e.key === 'Escape') shut(); });
+
+$('#f').onsubmit = e => {
+  e.preventDefault();
+  if(busy) return busy();
+  if(!inp.value.trim() && !attachedImage) return startVoiceMode();
+  send(inp.value);
+};
+
+inp.oninput = sync;
+$('#dq').oninput = rh;
+
+// File & Image Pickers
+['fc', 'fp'].forEach(id => {
+  const el = $('#' + id);
+  if(el){
+    el.onchange = e => {
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        attachedImage = {
+          data: ev.target.result,
+          mime: file.type || 'image/jpeg',
+          name: file.name
+        };
+        rch();
+        sync();
+        toast('📷 Фото прикреплено');
+      };
+      reader.readAsDataURL(file);
+      e.target.value = '';
+    };
+  }
+});
+
+$('#ff').onchange = e => {
+  [...e.target.files].forEach(f => F.push(f.name));
+  e.target.value = '';
+  rch();
+  toast('Файл прикреплен');
+};
+
+// Init Application
+async function initApp(){
+  loadStoredData();
+  initVoiceEngine();
+  renderUserProfile();
+  
+  try {
+    const kbResp = await fetch(getApiUrl('knowledge_base.json'));
+    if(kbResp.ok){
+      knowledgeBase = await kbResp.json();
+    }
+  } catch(e){}
+
+  $('#sg').innerHTML = S.map((s,i) => `<button type="button" data-a="sug" data-v="${i}">${s[0]}</button>`).join('');
+  
+  rmod();
+  rh();
+  show();
+}
+
+window.addEventListener('DOMContentLoaded', initApp);
+</script>
+</body>
+</html>

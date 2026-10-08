@@ -1,0 +1,1 @@
+# No external dependencies required (native Python 3 standard library)
