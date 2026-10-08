@@ -138,11 +138,14 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.os.Build;
 import android.graphics.Color;
+import android.content.pm.PackageManager;
+import android.Manifest;
 
 public class MainActivity extends Activity {
     private WebView mWebView;
     private ValueCallback<Uri[]> mFilePathCallback;
     private final static int FILECHOOSER_RESULTCODE = 1;
+    private final static int PERMISSION_REQUEST_CODE = 101;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,6 +156,25 @@ public class MainActivity extends Activity {
             Window window = getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(Color.parseColor("#0D0F20"));
+        }
+
+        // Request real runtime camera & microphone permissions
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String[] permissions = {
+                Manifest.permission.CAMERA,
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.MODIFY_AUDIO_SETTINGS
+            };
+            boolean needReq = false;
+            for (String p : permissions) {
+                if (checkSelfPermission(p) != PackageManager.PERMISSION_GRANTED) {
+                    needReq = true;
+                    break;
+                }
+            }
+            if (needReq) {
+                requestPermissions(permissions, PERMISSION_REQUEST_CODE);
+            }
         }
 
         mWebView = new WebView(this);
@@ -170,9 +192,20 @@ public class MainActivity extends Activity {
         settings.setLoadWithOverviewMode(true);
         settings.setUseWideViewPort(true);
         settings.setSupportZoom(false);
+        settings.setJavaScriptCanOpenWindowsAutomatically(true);
+        settings.setSupportMultipleWindows(true);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
         }
+
+        // Clean user agent for Google auth
+        try {
+            String defaultUA = settings.getUserAgentString();
+            if (defaultUA != null) {
+                settings.setUserAgentString(defaultUA.replace("; wv", ""));
+            }
+        } catch (Exception e) {}
 
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
@@ -183,8 +216,22 @@ public class MainActivity extends Activity {
 
         mWebView.setWebChromeClient(new WebChromeClient() {
             @Override
-            public void onPermissionRequest(PermissionRequest request) {
-                request.grant(request.getResources());
+            public void onPermissionRequest(final PermissionRequest request) {
+                MainActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            request.grant(request.getResources());
+                        } catch (Exception e) {
+                            try {
+                                request.grant(new String[]{
+                                    PermissionRequest.RESOURCE_VIDEO_CAPTURE,
+                                    PermissionRequest.RESOURCE_AUDIO_CAPTURE
+                                });
+                            } catch (Exception ex) {}
+                        }
+                    }
+                });
             }
 
             @Override
@@ -193,9 +240,16 @@ public class MainActivity extends Activity {
                     mFilePathCallback.onReceiveValue(null);
                 }
                 mFilePathCallback = filePathCallback;
-                Intent intent = fileChooserParams.createIntent();
+
                 try {
-                    startActivityForResult(intent, FILECHOOSER_RESULTCODE);
+                    Intent takePictureIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                    Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                    contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                    contentSelectionIntent.setType("image/*");
+
+                    Intent chooserIntent = Intent.createChooser(contentSelectionIntent, "Сделать фото или выбрать изображение");
+                    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[] { takePictureIntent });
+                    startActivityForResult(chooserIntent, FILECHOOSER_RESULTCODE);
                 } catch (Exception e) {
                     mFilePathCallback = null;
                     return false;
@@ -205,6 +259,16 @@ public class MainActivity extends Activity {
         });
 
         mWebView.loadUrl("file:///android_asset/index.html");
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (mWebView != null) {
+                mWebView.reload();
+            }
+        }
     }
 
     @Override

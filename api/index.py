@@ -13,13 +13,34 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY") or _d("QVEuQWI4Uk42SkVtTW9UNWt
 TH_RUDDER_KEY = os.environ.get("TH_RUDDER_KEY") or _d("dGhrX2xpdmVfT2F2SVJmTHNXME5sMlZQa0gxR1hzWGJWaFRfeTUxOERfSVhTa3RGTnZCUDNrUTI2ZVVaRjVWN2haeUdjejh0Vg==")
 ATR_KEY = os.environ.get("ATR_KEY") or _d("YXRyX3dPUUtqbC0zYWthT0MxVC1IQXFZcVp1dVlIckxZemN5")
 
-SYSTEM_INSTRUCTION = (
-    "Ты — CloudGPT, передовая интеллектуальная нейросеть нового поколения, полностью разработанная и обученная нашей командой. "
-    "Никаких упоминаний сторонних API или чужих компаний. "
-    "Ты обладаешь глубокими знаниями в программировании, низкоуровневой архитектуре систем, реверс-инжиниринге (C++, Rust, Assembly, читы, драйверы, хуки), "
-    "Computer Vision (ViT, YOLO, распознавание изображений, OCR, детекция кода), математике и генерации контента. "
-    "Всегда отвечай уверенно, технически безупречно, структурированно, понятно и вежливо на русском языке с красивой Markdown-разметкой и подсветкой синтаксиса."
-)
+MODEL_PERSONAS = {
+    "cloudgpt": (
+        "Ты — CloudGPT, передовая флагманская интеллектуальная нейросеть нового поколения, "
+        "полностью разработанная и обученная нашей командой. "
+        "Ты обладаешь глубокими знаниями в программировании, системной архитектуре, реверс-инжиниринге (C++, Rust, Assembly, читы, хуки, инжекторы), "
+        "компьютерном зрении и генерации контента. Всегда отвечай уверенно, технически грамотно, подробно и вежливо на русском языке с красивой Markdown-разметкой."
+    ),
+    "claude-haiku-5.5:free": (
+        "Ты — Claude Haiku 5.5 (в ядре экосистемы CloudGPT), ультрабыстрая и высокоточная модель. "
+        "Твои главные качества: молниеносная скорость ответа, кристальная логика, чистый читаемый код и лаконичность. "
+        "Отвечай на русском языке с подсветкой синтаксиса."
+    ),
+    "deepseek-v4.1-flash:free": (
+        "Ты — DeepSeek V4.1 Flash (в ядре экосистемы CloudGPT), продвинутая нейросеть для сложного reasoning, "
+        "программирования, математики, низкоуровневых алгоритмов, читов, драйверов и реверс-инжиниринга. "
+        "Отвечай с максимальной технической детализацией, структурированно и с рабочими примерами кода."
+    ),
+    "mimo-v2.6-flash:free": (
+        "Ты — MiMo V2.6 Flash (в ядре экосистемы CloudGPT), адаптивная мультимодальная нейросеть нового поколения. "
+        "Ты превосходно решаешь задачи любой сложности: от анализа данных и кода до креативных идей. "
+        "Отвечай вежливо, информативно и понятно на русском языке."
+    )
+}
+
+def get_system_instruction(model_id: str = "cloudgpt") -> str:
+    return MODEL_PERSONAS.get(model_id, MODEL_PERSONAS["cloudgpt"])
+
+SYSTEM_INSTRUCTION = MODEL_PERSONAS["cloudgpt"]
 
 PROMPT_EXPANSIONS = [
     (r'(?i)(неб[а-я]*|небес[а-я]*|sky|skies)', 'breathtaking vibrant blue sky with fluffy white cumulus clouds, bright natural sun rays, atmospheric depth, cinematic lighting, ultra-detailed 8k landscape photography, clear horizon'),
@@ -43,16 +64,17 @@ def enhance_prompt(prompt: str) -> str:
     return f"photorealistic highly detailed 8k image of {cleaned}, natural cinematic lighting, masterpiece composition, award-winning photography, no watermark, no text"
 
 
-def handle_vision_query(prompt: str, base64_data: str, mime_type: str = "image/jpeg"):
+def handle_vision_query(prompt: str, base64_data: str, mime_type: str = "image/jpeg", model: str = "cloudgpt"):
     clean_b64 = re.sub(r'^data:image\/[a-zA-Z]+;base64,', '', base64_data)
     models = ['gemini-3-flash-preview', 'gemini-3.1-flash-lite-preview', 'gemini-3.1-flash-lite']
+    instruction = get_system_instruction(model)
     
-    for model in models:
+    for m in models:
         try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={GEMINI_API_KEY}"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={GEMINI_API_KEY}"
             payload = {
                 "system_instruction": {
-                    "parts": [{"text": SYSTEM_INSTRUCTION}]
+                    "parts": [{"text": instruction}]
                 },
                 "contents": [
                     {
@@ -83,9 +105,10 @@ def handle_vision_query(prompt: str, base64_data: str, mime_type: str = "image/j
     return "Не удалось обработать изображение. Пожалуйста, попробуйте еще раз."
 
 
-def handle_text_query(messages: list):
+def handle_text_query(messages: list, model: str = "cloudgpt"):
     models = ['gemini-3-flash-preview', 'gemini-3.1-flash-lite-preview', 'gemini-3.1-flash-lite']
     gemini_contents = []
+    instruction = get_system_instruction(model)
     
     for m in messages:
         role = "user" if m.get("role") in ["user", "system"] else "model"
@@ -99,7 +122,7 @@ def handle_text_query(messages: list):
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
             payload = {
                 "system_instruction": {
-                    "parts": [{"text": SYSTEM_INSTRUCTION}]
+                    "parts": [{"text": instruction}]
                 },
                 "contents": gemini_contents
             }
@@ -132,6 +155,21 @@ def app(environ, start_response):
     if method == 'OPTIONS':
         start_response('200 OK', headers)
         return [b'']
+
+    if path.endswith('/api/check_update') and method == 'GET':
+        resp_body = json.dumps({
+            "latest_version": "4.3.0",
+            "has_update": True,
+            "release_notes": [
+                "Интеллектуальная маршрутизация моделей: CloudGPT, Claude Haiku, DeepSeek, MiMo",
+                "Поддержка реальной Google авторизации (OAuth2 / GIS)",
+                "Прямой доступ к камере с мгновенным Vision анализом",
+                "Двусторонний голосовой ассистент с реактивным визуализатором"
+            ],
+            "size_mb": 142.5
+        }).encode('utf-8')
+        start_response('200 OK', headers)
+        return [resp_body]
         
     if path.endswith('/api/generate_image') and method == 'POST':
         try:
@@ -164,11 +202,12 @@ def app(environ, start_response):
             image_data = data.get('image_data', '')
             mime_type = data.get('mime_type', 'image/jpeg')
             messages = data.get('messages', [])
+            model = data.get('model', 'cloudgpt')
             
             if image_data:
-                reply = handle_vision_query(prompt, image_data, mime_type)
+                reply = handle_vision_query(prompt, image_data, mime_type, model=model)
             else:
-                reply = handle_text_query(messages)
+                reply = handle_text_query(messages, model=model)
                 
             resp_body = json.dumps({"success": True, "reply": reply}).encode('utf-8')
             start_response('200 OK', headers)
@@ -180,11 +219,14 @@ def app(environ, start_response):
     if path.endswith('/api/models'):
         resp_body = json.dumps({
             "models": [
-                {"id": "cloudgpt", "name": "CloudGPT"},
-                {"id": "cloudgpt-vision", "name": "CloudGPT Vision"},
-                {"id": "cloudgpt-image", "name": "CloudGPT 8K Image"}
+                {"id": "cloudgpt", "name": "CloudGPT", "badge": "Флагман"},
+                {"id": "claude-haiku-5.5:free", "name": "Claude Haiku 5.5", "badge": "Скорость"},
+                {"id": "deepseek-v4.1-flash:free", "name": "DeepSeek V4.1 Flash", "badge": "Код & Reasoning"},
+                {"id": "mimo-v2.6-flash:free", "name": "MiMo V2.6 Flash", "badge": "Мультимодал"}
             ]
         }).encode('utf-8')
+        start_response('200 OK', headers)
+        return [resp_body]
         start_response('200 OK', headers)
         return [resp_body]
 

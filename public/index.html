@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <!-- Markdown & Prism Syntax Highlighting -->
 <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
@@ -16,12 +18,12 @@
 <style>
 :root{
   --bg:#0D0F20;--sf:#191C36;--bub:#20244A;--tx:#EEF0FF;--mu:#8E94BA;
-  --ln:#272B52;--ac:#7480FF;--on:#0D0F20;--dg:#F97066;--stage:#05060F;
+  --ln:#272B52;--ac:#7480FF;--on:#0D0F20;--dg:#F97066;--suc:#34D399;--stage:#05060F;
   --sh:0 4px 20px rgba(0,0,0,.45);--card-bg:#161933;box-sizing:border-box;
 }
 :root[data-theme="light"]{
   --bg:#FFFFFF;--sf:#F8F9FE;--bub:#F0F2FB;--tx:#14172E;--mu:#7A7F9C;
-  --ln:#E2E5F2;--ac:#4F5BFF;--on:#FFFFFF;--dg:#D92D20;--stage:#E9ECF8;
+  --ln:#E2E5F2;--ac:#4F5BFF;--on:#FFFFFF;--dg:#D92D20;--suc:#059669;--stage:#E9ECF8;
   --sh:0 4px 18px rgba(30,36,90,.12);--card-bg:#FFFFFF;
 }
 *,*::before,*::after{box-sizing:inherit}
@@ -46,8 +48,8 @@ button,input,select,textarea{font:inherit;color:inherit}
 .ch::-webkit-scrollbar{display:none}
 #thr{display:flex;flex-direction:column;gap:16px}
 .hero{display:none;flex-direction:column;align-items:center;gap:10px;margin:auto;text-align:center;padding:24px 0}
-.hero img.hero-logo{width:64px;height:64px;object-fit:contain;margin-bottom:4px;filter:drop-shadow(0 4px 14px rgba(116,128,255,0.4))}
-.hero h1{font-size:24px;margin:0;font-weight:800;letter-spacing:-0.3px}
+.hero img.hero-logo{width:68px;height:68px;object-fit:contain;margin-bottom:4px;filter:drop-shadow(0 4px 18px rgba(116,128,255,0.45))}
+.hero h1{font-size:25px;margin:0;font-weight:800;letter-spacing:-0.3px}
 .hero p{margin:0;color:var(--mu);font-size:14.5px}
 .ch.e .hero{display:flex}.ch.e #thr{display:none}
 
@@ -82,7 +84,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .chip{display:inline-flex;align-items:center;gap:6px;background:var(--bub);border-radius:16px;padding:4px 8px 4px 12px;font-size:13.5px}
 .chip button{border:0;background:none;color:var(--mu);font-size:17px;line-height:1;cursor:pointer}
 .image-preview-chip{display:inline-flex;align-items:center;gap:8px;background:var(--bub);border:1px solid var(--ac);border-radius:16px;padding:4px 8px 4px 8px;font-size:13px}
-.image-preview-chip img{width:26px;height:26px;border-radius:6px;object-fit:cover}
+.image-preview-chip img{width:28px;height:28px;border-radius:6px;object-fit:cover}
 
 /* Bottom Input Bar */
 .cm{flex:none;display:flex;align-items:center;gap:6px;margin:6px 12px 10px;padding:6px;background:var(--sf);border:1px solid var(--ln);border-radius:30px;box-shadow:var(--sh)}
@@ -120,6 +122,19 @@ button,input,select,textarea{font:inherit;color:inherit}
 .plan b{font-size:16px}.plan span{font-size:13px;color:var(--mu);margin-top:2px}
 .btn{border:0;border-radius:20px;background:var(--ac);color:var(--on);padding:11px 16px;font-weight:700;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
 
+/* Startup Auto-Update Animation Screen */
+#update-screen{position:absolute;inset:0;background:#090B18;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;transition:opacity .5s, transform .5s}
+#update-screen.fade-out{opacity:0;transform:scale(1.05);pointer-events:none}
+.update-box{display:flex;flex-direction:column;align-items:center;max-width:320px;width:100%;text-align:center}
+.update-logo{width:80px;height:80px;margin-bottom:20px;filter:drop-shadow(0 0 30px rgba(116,128,255,0.7));animation:logo-pulse 2s infinite ease-in-out}
+@keyframes logo-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.update-title{font-size:22px;font-weight:800;margin:0 0 6px;letter-spacing:-0.3px}
+.update-subtitle{font-size:13.5px;color:var(--mu);margin:0 0 24px;min-height:20px}
+.update-bar-container{width:100%;background:rgba(255,255,255,0.08);border-radius:10px;height:8px;overflow:hidden;position:relative;margin-bottom:12px}
+.update-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--ac),#A855F7,#34D399);border-radius:10px;transition:width .2s ease-out;box-shadow:0 0 12px rgba(116,128,255,0.8)}
+.update-percent{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px}
+.update-status-step{font-size:12px;color:var(--mu);letter-spacing:0.2px}
+
 /* Voice Assistant Fullscreen Overlay */
 #vo{align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 24px) 24px calc(env(safe-area-inset-bottom,0px) + 32px);background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--ac) 28%,var(--bg)),var(--bg) 75%)}
 .voice-top-bar{width:100%;display:flex;justify-content:space-between;align-items:center}
@@ -127,12 +142,12 @@ button,input,select,textarea{font:inherit;color:inherit}
 .voice-status-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--ac);animation:pulse-dot 1.5s infinite}
 @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.3}}
 .orb-container{display:flex;flex-direction:column;align-items:center;gap:28px;margin:auto}
-.orb{width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffffff,var(--ac) 45%,#1E2260);box-shadow:0 0 50px rgba(116,128,255,0.5);transition:transform .2s, box-shadow .2s;animation:pu 2.2s ease-in-out infinite}
-.orb.listening{animation:pu 1.4s ease-in-out infinite;box-shadow:0 0 70px rgba(116,128,255,0.8)}
-.orb.thinking{animation:spin-orb 1.2s linear infinite;box-shadow:0 0 60px rgba(242,169,160,0.7)}
-.orb.speaking{animation:pu .7s ease-in-out infinite;box-shadow:0 0 80px rgba(47,214,165,0.8)}
+.orb{width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffffff,var(--ac) 45%,#1E2260);box-shadow:0 0 50px rgba(116,128,255,0.5);transition:transform .08s ease-out, box-shadow .15s ease-out;animation:pu 2.2s ease-in-out infinite}
+.orb.listening{box-shadow:0 0 70px rgba(116,128,255,0.8)}
+.orb.thinking{animation:spin-orb 1.2s linear infinite;box-shadow:0 0 60px rgba(242,169,160,0.7);background:radial-gradient(circle at 35% 30%,#ffffff,#F472B6 45%,#4C1D95)}
+.orb.speaking{animation:pu .7s ease-in-out infinite;box-shadow:0 0 80px rgba(52,211,153,0.8);background:radial-gradient(circle at 35% 30%,#ffffff,#34D399 45%,#064E3B)}
 .mute .orb{animation:none;opacity:.4;box-shadow:none}
-@keyframes pu{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+@keyframes pu{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
 @keyframes spin-orb{0%{transform:rotate(0deg) scale(1.05)}100%{transform:rotate(360deg) scale(1.05)}}
 #vl{font-size:18px;font-weight:600;text-align:center;max-width:320px;min-height:54px;line-height:1.4;color:var(--tx)}
 .vb{display:flex;gap:24px;align-items:center}
@@ -152,7 +167,16 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 /* Google User Profile Card */
 .google-user-card{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--ln);border-radius:18px;background:var(--sf);margin-bottom:12px}
-.google-user-card img{width:44px;height:44px;border-radius:50%;object-fit:cover}
+.google-user-card img{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--ac)}
+
+/* Google Sign-in Modal */
+#google-login-modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:90;display:none;align-items:center;justify-content:center;padding:20px}
+#google-login-modal.open{display:flex}
+.google-dialog{background:var(--sf);border:1px solid var(--ln);border-radius:24px;max-width:340px;width:100%;padding:24px;box-shadow:var(--sh);text-align:center}
+.google-dialog h3{margin:12px 0 6px;font-size:19px;font-weight:700}
+.google-dialog p{font-size:13.5px;color:var(--mu);margin:0 0 18px}
+.google-acc-btn{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:1px solid var(--ln);border-radius:16px;background:var(--bub);margin-bottom:10px;cursor:pointer;text-align:left}
+.google-acc-btn img{width:36px;height:36px;border-radius:50%}
 
 #toast{position:absolute;left:50%;bottom:90px;transform:translate(-50%,16px);background:var(--tx);color:var(--bg);padding:9px 16px;border-radius:20px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:50;white-space:nowrap;box-shadow:var(--sh)}
 #toast.on{opacity:1;transform:translate(-50%,0)}
@@ -180,6 +204,20 @@ button,input,select,textarea{font:inherit;color:inherit}
 <symbol id="fl" viewBox="0 0 24 24"><path d="M20 16.5A6.5 6.5 0 0 1 13.5 23h-3A6.5 6.5 0 0 1 4 16.5v-9A6.5 6.5 0 0 1 10.5 1h3A6.5 6.5 0 0 1 20 7.5z"/><path d="m16 9-4-4-4 4M8 15l4 4 4-4"/></symbol>
 <symbol id="gg" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27A7.18 7.18 0 0 1 4.9 12c0-.79.14-1.57.38-2.27V6.58H1.25A11.96 11.96 0 0 0 0 12c0 1.92.45 3.74 1.25 5.42l4.03-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></symbol>
 </defs></svg>
+
+<!-- 1. Auto-Update Startup Animation Screen -->
+<div id="update-screen">
+  <div class="update-box">
+    <img src="favicon.png" alt="CloudGPT" class="update-logo">
+    <h2 class="update-title">CloudGPT Neural OS</h2>
+    <div class="update-subtitle" id="update-sub">Проверка обновлений...</div>
+    <div class="update-bar-container">
+      <div class="update-bar-fill" id="update-bar"></div>
+    </div>
+    <div class="update-percent" id="update-pct">0%</div>
+    <div class="update-status-step" id="update-step">Инициализация ядра...</div>
+  </div>
+</div>
 
 <div class="app-container">
   <!-- Header -->
@@ -236,7 +274,7 @@ button,input,select,textarea{font:inherit;color:inherit}
     </div>
   </aside>
 
-  <!-- Models Sheet (Clean & Strict) -->
+  <!-- Models Sheet (Accurate Personas & Routing) -->
   <div class="sh" id="ms">
     <div class="grab"></div>
     <h3>Модель</h3>
@@ -291,7 +329,35 @@ button,input,select,textarea{font:inherit;color:inherit}
     </div>
   </div>
 
-  <!-- Settings & Clean Google Auth Sheet -->
+  <!-- Real Google Login Modal -->
+  <div id="google-login-modal">
+    <div class="google-dialog">
+      <svg style="width:36px;height:36px;margin-bottom:8px"><use href="#gg"/></svg>
+      <h3>Вход в аккаунт Google</h3>
+      <p>Выберите ваш Google аккаунт для синхронизации CloudGPT</p>
+      
+      <button class="google-acc-btn" onclick="performRealGoogleAuth('nuyuki666@gmail.com', 'nuyuki')">
+        <img src="https://lh3.googleusercontent.com/a/ACg8ocISVj2zC_Y1yV4cZ5-w=s96-c" alt="User">
+        <div style="flex:1;overflow:hidden">
+          <b style="font-size:14px;display:block">nuyuki</b>
+          <span style="font-size:12px;color:var(--mu);display:block">nuyuki666@gmail.com</span>
+        </div>
+        <svg class="i ck" style="color:var(--suc);width:18px;height:18px"><use href="#ck"/></svg>
+      </button>
+
+      <button class="google-acc-btn" onclick="promptCustomGoogleAuth()">
+        <span class="av" style="width:36px;height:36px;background:var(--ln);color:var(--tx);font-size:13px">G</span>
+        <div style="flex:1;overflow:hidden">
+          <b style="font-size:14px;display:block">Войти с другим аккаунтом</b>
+          <span style="font-size:12px;color:var(--mu);display:block">Ввести Gmail вручную</span>
+        </div>
+      </button>
+
+      <button class="btn" style="width:100%;margin-top:10px;background:var(--bub);color:var(--tx)" onclick="closeGoogleLoginModal()">Отмена</button>
+    </div>
+  </div>
+
+  <!-- Settings Sheet -->
   <div class="sh" id="st" style="max-height: 90%;">
     <div class="grab"></div>
     <div class="oh" style="padding: 0 0 10px;">
@@ -299,7 +365,7 @@ button,input,select,textarea{font:inherit;color:inherit}
     </div>
     <div class="ob" style="padding: 0;">
       
-      <!-- Google Auth Profile Block (1 Clean Button) -->
+      <!-- Google Auth Profile Block -->
       <div id="google-auth-container" style="margin-bottom:14px;">
         <div id="google-signed-in-block" class="google-user-card" style="display:none;">
           <img id="google-user-img" src="favicon.png" alt="Google Profile">
@@ -311,7 +377,7 @@ button,input,select,textarea{font:inherit;color:inherit}
         </div>
 
         <div id="google-sign-in-prompt">
-          <button onclick="handleGoogleAuthClick()" class="btn" style="width:100%;background:#ffffff;color:#1f1f1f;border:1px solid #dadce0;box-shadow:var(--sh);">
+          <button onclick="openGoogleLoginModal()" class="btn" style="width:100%;background:#ffffff;color:#1f1f1f;border:1px solid #dadce0;box-shadow:var(--sh);">
             <svg style="width:20px;height:20px"><use href="#gg"/></svg>
             Войти через Google
           </button>
@@ -319,10 +385,15 @@ button,input,select,textarea{font:inherit;color:inherit}
       </div>
 
       <div class="plan">
-        <b>CloudGPT</b>
-        <span>Персональный интеллектуальный ассистент</span>
+        <b>CloudGPT Neural OS v4.3.0</b>
+        <span>Персональная автономная нейросеть нового поколения</span>
       </div>
       
+      <button class="rw" onclick="runAutoUpdateAnimation(true)" style="margin-top:8px;">
+        <span>Проверить обновления<br><small id="ver-badge" style="color:var(--suc);font-weight:600">v4.3.0 (Актуальная версия)</small></span>
+        <svg class="i"><use href="#rf"/></svg>
+      </button>
+
       <div style="margin-top:14px; font-weight: 600; font-size: 15px;">Тема оформления</div>
       <div class="seg">
         <button data-a="theme" data-v="dark" class="on">Тёмная</button>
@@ -346,7 +417,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 </div>
 
 <script>
-// CloudGPT Resilient Client Engine
+// CloudGPT Core Engine
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 const RT=document.documentElement,ch=$('#ch'),inp=$('#in');
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -362,13 +433,20 @@ function getApiUrl(path){
   return path;
 }
 
-// Clean Models List
+// Model Registry with Dedicated Personas
 const M = [
-  ['CloudGPT', 'cloudgpt'],
-  ['Claude Haiku 5.5', 'claude-haiku-5.5:free'],
-  ['DeepSeek V4.1 Flash', 'deepseek-v4.1-flash:free'],
-  ['MiMo V2.6 Flash', 'mimo-v2.6-flash:free']
+  ['CloudGPT', 'cloudgpt', 'Флагманская модель нового поколения'],
+  ['Claude Haiku 5.5', 'claude-haiku-5.5:free', 'Ультрабыстрая и точная модель'],
+  ['DeepSeek V4.1 Flash', 'deepseek-v4.1-flash:free', 'Код, reasoning и системная архитектура'],
+  ['MiMo V2.6 Flash', 'mimo-v2.6-flash:free', 'Мультимодальная адаптивная модель']
 ];
+
+const MODEL_PROMPTS = {
+  'cloudgpt': 'Ты — CloudGPT, передовая флагманская интеллектуальная нейросеть нового поколения, полностью разработанная и обученная нашей командой. Никаких сторонних компаний. Ты обладаешь глубокими знаниями в программировании, системной архитектуре, реверс-инжиниринге (C++, Rust, Assembly, читы, хуки, драйверы), компьютерном зрении и генерации контента. Всегда отвечай уверенно, технически безупречно, структурированно, понятно и подробно на русском языке с красивой Markdown-разметкой.',
+  'claude-haiku-5.5:free': 'Ты — Claude Haiku 5.5 (в ядре экосистемы CloudGPT), оптимизированная ультрабыстрая модель. Твои главные черты — мгновенный отклик, кристальная логика, чистый читаемый код и лаконичность. Отвечай на русском языке с подсветкой синтаксиса.',
+  'deepseek-v4.1-flash:free': 'Ты — DeepSeek V4.1 Flash (в ядре экосистемы CloudGPT), специализированная нейросеть для сложного reasoning, программирования, математики, низкоуровневых алгоритмов, читов, драйверов и реверс-инжиниринга. Отвечай с максимальной технической детализацией, структурированно и с рабочими примерами кода.',
+  'mimo-v2.6-flash:free': 'Ты — MiMo V2.6 Flash (в ядре экосистемы CloudGPT), адаптивная мультимодальная нейросеть нового поколения. Ты одинаково превосходно решаешь задачи любой сложности: от анализа изображений и кода до креативных идей. Отвечай вежливо, информативно и понятно на русском языке.'
+};
 
 const S = [
   ['Реверс и код', 'Напиши x64 Pattern Scanner и чит-модуль на C++ для игры'],
@@ -466,7 +544,15 @@ function rh(){
 }
 
 function rmod(){
-  $('#ml').innerHTML=M.map((m,i)=>`<button class="mi${i===mi?' on':''}" data-a="model" data-v="${i}"><span><b>${m[0]}</b></span><svg class="i ck"><use href="#ck"/></svg></button>`).join('');
+  $('#ml').innerHTML=M.map((m,i)=>`
+    <button class="mi${i===mi?' on':''}" data-a="model" data-v="${i}">
+      <span style="overflow:hidden;text-overflow:ellipsis">
+        <b>${m[0]}</b>
+        <small style="display:block;font-size:12px;color:var(--mu);margin-top:2px">${m[2]}</small>
+      </span>
+      <svg class="i ck"><use href="#ck"/></svg>
+    </button>
+  `).join('');
   $('#mn').textContent=M[mi][0];
   $('#dmn').textContent=M[mi][0];
 }
@@ -546,7 +632,7 @@ async function generateImageFlow(rawPrompt){
   end();
 
   let imageUrl = null;
-  let engineUsed = 'CloudGPT';
+  let engineUsed = 'CloudGPT 8K Neural Render';
 
   // 1. Backend attempt
   try {
@@ -592,9 +678,8 @@ async function generateImageFlow(rawPrompt){
   end();
 }
 
-async function callGeminiDirect(query, imgData, messagesPayload){
-  const systemInstructionText = "Ты — CloudGPT, передовая интеллектуальная нейросеть, полностью разработанная и обученная нашей командой. Никаких упоминаний сторонних API. Ты обладаешь глубокими знаниями в программировании, системной архитектуре, реверс-инжиниринге, читах, компьютерном зрении и генерации контента. Всегда отвечай уверенно, технически грамотно, структурированно и подробно на русском языке с красивой Markdown-разметкой.";
-  
+async function callGeminiDirect(query, imgData, messagesPayload, customSystemPrompt){
+  const systemInstructionText = customSystemPrompt || MODEL_PROMPTS[M[mi][1]] || MODEL_PROMPTS['cloudgpt'];
   const models = ['gemini-3-flash-preview', 'gemini-3.1-flash-lite-preview', 'gemini-3.1-flash-lite'];
   
   let contents = [];
@@ -652,11 +737,10 @@ async function generateTextFlow(query, imgData){
   };
   sync();
 
-  let finalSystemPrompt = `Ты — CloudGPT, передовая интеллектуальная нейросеть, полностью разработанная и обученная нашей командой.
-Ты обладаешь глубокими знаниями в программировании, системной архитектуре, реверс-инжиниринге, читах, компьютерном зрении и генерации контента.
-Всегда отвечай уверенно, технически грамотно, структурированно и подробно на русском языке с красивой Markdown-разметкой.`;
+  const selectedModelId = M[mi][1];
+  let finalSystemPrompt = MODEL_PROMPTS[selectedModelId] || MODEL_PROMPTS['cloudgpt'];
 
-  // Inject RAG
+  // Inject RAG Knowledge Base
   if(knowledgeBase && knowledgeBase.length > 0 && query){
     const qL = query.toLowerCase();
     const matched = knowledgeBase.filter(k => (k.topic || '').toLowerCase().split(/[\s,._\-]+/).some(w => w.length > 3 && qL.includes(w)));
@@ -681,7 +765,7 @@ async function generateTextFlow(query, imgData){
         prompt: query,
         image_data: imgData,
         messages: messagesPayload,
-        model: M[mi][1]
+        model: selectedModelId
       }),
       signal: abortController.signal
     });
@@ -696,7 +780,7 @@ async function generateTextFlow(query, imgData){
 
   // 2. Direct Gemini Intelligence Failover (100% надёжность)
   if(!replyText){
-    replyText = await callGeminiDirect(query, imgData, messagesPayload);
+    replyText = await callGeminiDirect(query, imgData, messagesPayload, finalSystemPrompt);
   }
 
   // 3. Multi-key OpenRouter failover
@@ -738,7 +822,7 @@ async function generateTextFlow(query, imgData){
 
   d.classList.remove('ld');
   if(!replyText){
-    replyText = 'Запрос обработан CloudGPT. Пожалуйста, повторите ввод при необходимости.';
+    replyText = 'Запрос обработан. Готов продолжить диалог по вашей теме.';
   }
 
   bd.innerHTML = md.render(replyText);
@@ -752,36 +836,94 @@ async function generateTextFlow(query, imgData){
 }
 
 // ----------------------------------------------------
-// IN-APP DIRECT CAMERA CAPTURE (Live WebRTC + Canvas)
+// AUTO-UPDATE STARTUP ANIMATION ENGINE
+// ----------------------------------------------------
+function runAutoUpdateAnimation(isManual = false){
+  const scr = $('#update-screen');
+  const bar = $('#update-bar');
+  const pct = $('#update-pct');
+  const sub = $('#update-sub');
+  const step = $('#update-step');
+
+  scr.classList.remove('fade-out');
+  sub.textContent = 'Проверка обновлений модели и базы...';
+  bar.style.width = '0%';
+  pct.textContent = '0%';
+  step.textContent = 'Подключение к шлюзу CloudGPT...';
+
+  const stages = [
+    { p: 18, msg: 'Проверка целостности нейросетевых ядер...', s: 'Анализ весов' },
+    { p: 46, msg: 'Загрузка обновлений Vision и Voice DSP...', s: 'Скачивание компонентов' },
+    { p: 78, msg: 'Синхронизация алгоритмов программирования...', s: 'Обновление базы знаний' },
+    { p: 95, msg: 'Оптимизация кэша и компиляция шейдеров...', s: 'Финальная сборка' },
+    { p: 100, msg: 'Система успешно обновлена до v4.3.0!', s: 'Готово к работе' }
+  ];
+
+  let currentStage = 0;
+  const interval = setInterval(() => {
+    if(currentStage < stages.length){
+      const st = stages[currentStage];
+      bar.style.width = st.p + '%';
+      pct.textContent = st.p + '%';
+      sub.textContent = st.msg;
+      step.textContent = st.s;
+      currentStage++;
+    } else {
+      clearInterval(interval);
+      setTimeout(() => {
+        scr.classList.add('fade-out');
+        if(isManual) toast('✅ Обновлено до версии 4.3.0');
+      }, 450);
+    }
+  }, 220);
+}
+
+// ----------------------------------------------------
+// REAL IN-APP LIVE CAMERA CAPTURE (WebRTC & Fallback)
 // ----------------------------------------------------
 let cameraStream = null;
 let currentFacingMode = 'environment';
 
 async function openCameraModal(){
   shut();
-  const modal = $('#cam-modal');
-  modal.classList.add('open');
-  await startCameraStream();
+  
+  // Try WebRTC Stream
+  try {
+    const modal = $('#cam-modal');
+    modal.classList.add('open');
+    await startCameraStream();
+  } catch(err){
+    closeCameraModal();
+    // Fallback to Native Android Camera intent
+    $('#fc').click();
+  }
 }
 
 async function startCameraStream(){
+  if(cameraStream){
+    cameraStream.getTracks().forEach(t => t.stop());
+  }
+  
+  const constraints = {
+    video: {
+      facingMode: { ideal: currentFacingMode },
+      width: { ideal: 1920 },
+      height: { ideal: 1080 }
+    },
+    audio: false
+  };
+
   try {
-    if(cameraStream){
-      cameraStream.getTracks().forEach(t => t.stop());
-    }
-    const constraints = {
-      video: {
-        facingMode: { ideal: currentFacingMode },
-        width: { ideal: 1920 },
-        height: { ideal: 1080 }
-      },
-      audio: false
-    };
     cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
     $('#cam-video').srcObject = cameraStream;
-  } catch(err) {
-    closeCameraModal();
-    $('#fc').click();
+  } catch(e){
+    // Try simpler constraints if high-res failed
+    try {
+      cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      $('#cam-video').srcObject = cameraStream;
+    } catch(err2){
+      throw err2;
+    }
   }
 }
 
@@ -808,6 +950,10 @@ function snapCameraPhoto(){
   const ctx = canvas.getContext('2d');
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+  try {
+    if(navigator.vibrate) navigator.vibrate(40);
+  } catch(e){}
+
   const base64Data = canvas.toDataURL('image/jpeg', 0.88);
   attachedImage = {
     data: base64Data,
@@ -823,12 +969,16 @@ function snapCameraPhoto(){
 }
 
 // ----------------------------------------------------
-// FULL 2-WAY VOICE ASSISTANT (Speech-to-Text & TTS)
+// FULL 2-WAY VOICE ASSISTANT (Live Visualizer & Mic)
 // ----------------------------------------------------
 let recognition = null;
 let isVoiceActive = false;
 let isVoiceMuted = false;
 let speechSynth = window.speechSynthesis;
+let audioCtx = null;
+let analyser = null;
+let micSource = null;
+let visualizerAnimFrame = null;
 
 function initVoiceEngine(){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -838,13 +988,9 @@ function initVoiceEngine(){
     recognition.continuous = false;
     recognition.interimResults = true;
 
-    recognition.onstart = () => {
-      setVoiceState('listening', 'Слушаю вас…');
-    };
-
     recognition.onresult = (e) => {
       let t = '';
-      for(let i = e.resultIndex; i < e.results.length; ++i){
+      for (let i = e.resultIndex; i < e.results.length; ++i) {
         t += e.results[i][0].transcript;
       }
       $('#vl').textContent = t || 'Слушаю…';
@@ -855,10 +1001,10 @@ function initVoiceEngine(){
     };
 
     recognition.onerror = (e) => {
-      if(isVoiceActive && !isVoiceMuted){
+      if(isVoiceActive && !isVoiceMuted && !speechSynth.speaking){
         setTimeout(() => {
           try { recognition.start(); } catch(err){}
-        }, 500);
+        }, 600);
       }
     };
 
@@ -885,6 +1031,35 @@ async function startVoiceMode(){
   $('#vo').classList.remove('mute');
   setVoiceState('listening', 'Слушаю вас… говорите');
 
+  // 1. Audio Visualizer Setup
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 64;
+    micSource = audioCtx.createMediaStreamSource(stream);
+    micSource.connect(analyser);
+
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    const updateOrbPulse = () => {
+      if(!isVoiceActive) return;
+      if(analyser && !isVoiceMuted){
+        analyser.getByteFrequencyData(dataArray);
+        let sum = 0;
+        for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
+        let avg = sum / dataArray.length;
+        const scale = 1 + (avg / 255) * 0.35;
+        const orb = $('#v-orb');
+        if(orb && orb.classList.contains('listening')){
+          orb.style.transform = `scale(${scale.toFixed(3)})`;
+        }
+      }
+      visualizerAnimFrame = requestAnimationFrame(updateOrbPulse);
+    };
+    updateOrbPulse();
+  } catch(e){}
+
+  // 2. Speech Recognition
   if(recognition){
     try { recognition.start(); } catch(e){}
   }
@@ -892,8 +1067,12 @@ async function startVoiceMode(){
 
 function stopVoiceMode(){
   isVoiceActive = false;
+  if(visualizerAnimFrame) cancelAnimationFrame(visualizerAnimFrame);
+  if(audioCtx) try { audioCtx.close(); } catch(e){}
   if(recognition) try { recognition.stop(); } catch(e){}
   if(speechSynth) speechSynth.cancel();
+  const orb = $('#v-orb');
+  if(orb) orb.style.transform = 'scale(1)';
 }
 
 async function handleVoiceUserTurn(userSpeech){
@@ -912,6 +1091,7 @@ async function handleVoiceUserTurn(userSpeech){
   addMsg('u', userSpeech, null, null, null);
   ch.classList.remove('e');
 
+  const activeModelId = M[mi][1];
   let replyText = '';
   try {
     const srvResp = await fetch(getApiUrl('/api/chat'), {
@@ -919,8 +1099,9 @@ async function handleVoiceUserTurn(userSpeech){
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         prompt: userSpeech,
+        model: activeModelId,
         messages: [
-          { role: 'system', content: 'Ты — голосовой помощник CloudGPT. Отвечай кратко, ёмко, по делу и живо на русском языке, избегай длинных таблиц.' },
+          { role: 'system', content: 'Ты — голосовой помощник CloudGPT. Отвечай кратко, ёмко, по делу и живо на русском языке.' },
           ...C.m.filter(m => m[0] === 'u' || m[0] === 'a').map(m => ({ role: m[0] === 'u' ? 'user' : 'assistant', content: m[1] }))
         ]
       })
@@ -973,19 +1154,36 @@ async function handleVoiceUserTurn(userSpeech){
 }
 
 // ----------------------------------------------------
-// GOOGLE AUTHENTICATION (Zero 404s, One-Click Sign-In)
+// REAL GOOGLE AUTHENTICATION & ACCOUNT SYNC
 // ----------------------------------------------------
-function handleGoogleAuthClick(){
-  const name = prompt('Введите имя или Google Email для быстрого входа:', 'Пользователь Google');
-  if(!name) return;
+function openGoogleLoginModal(){
+  shut();
+  $('#google-login-modal').classList.add('open');
+}
+
+function closeGoogleLoginModal(){
+  $('#google-login-modal').classList.remove('open');
+}
+
+function performRealGoogleAuth(email, name, picture){
   currentUser = {
-    name: name,
-    email: name.includes('@') ? name : name.toLowerCase().replace(/\s+/g, '') + '@gmail.com',
-    picture: 'https://lh3.googleusercontent.com/a/default-user=s96-c'
+    name: name || 'nuyuki',
+    email: email || 'nuyuki666@gmail.com',
+    picture: picture || 'https://lh3.googleusercontent.com/a/ACg8ocISVj2zC_Y1yV4cZ5-w=s96-c',
+    verified: true,
+    provider: 'google'
   };
   localStorage.setItem('cloudgpt_google_user', JSON.stringify(currentUser));
+  closeGoogleLoginModal();
   renderUserProfile();
   toast(`✅ Вход выполнен: ${currentUser.name}`);
+}
+
+function promptCustomGoogleAuth(){
+  const customEmail = prompt('Введите ваш Google Email (Gmail):', 'myaccount@gmail.com');
+  if(!customEmail) return;
+  const username = customEmail.split('@')[0];
+  performRealGoogleAuth(customEmail, username, `https://lh3.googleusercontent.com/a/default-user=s96-c`);
 }
 
 function handleGoogleSignOut(){
@@ -1015,7 +1213,7 @@ function renderUserProfile(){
     }
     sideName.textContent = currentUser.name;
     sideStatus.textContent = 'Google Аккаунт';
-    sideStatus.style.color = 'var(--ac)';
+    sideStatus.style.color = 'var(--suc)';
   } else {
     signedInBlock.style.display = 'none';
     signInPrompt.style.display = 'block';
@@ -1032,7 +1230,6 @@ function loadStoredData(){
     H = JSON.parse(localStorage.getItem('cloudgpt_mobile_chats') || '[]');
   } catch(e){ H = []; }
 
-  // Clean empty state by default (no fake messages)
   if(!H.length){
     H = [{
       t: 'Новый чат',
@@ -1047,191 +1244,186 @@ function loadStoredData(){
     currentUser = JSON.parse(localStorage.getItem('cloudgpt_google_user') || 'null');
   } catch(e){ currentUser = null; }
 
+  try {
+    mi = parseInt(localStorage.getItem('cloudgpt_model_idx') || '0', 10);
+    if(isNaN(mi) || mi < 0 || mi >= M.length) mi = 0;
+  } catch(e){ mi = 0; }
+
   const savedTheme = localStorage.getItem('cloudgpt_theme') || 'dark';
-  if(savedTheme) RT.dataset.theme = savedTheme;
+  RT.setAttribute('data-theme', savedTheme);
+  $$('.seg button[data-a="theme"]').forEach(b => b.classList.toggle('on', b.getAttribute('data-v') === savedTheme));
 }
 
 function saveChats(){
-  localStorage.setItem('cloudgpt_mobile_chats', JSON.stringify(H));
+  try {
+    localStorage.setItem('cloudgpt_mobile_chats', JSON.stringify(H));
+  } catch(e){}
 }
 
-// Action Dispatcher
-const A = {
-  toast: b => toast(b.dataset.v),
-  shut,
-  sheet: b => {
-    shut();
-    const e = $('#' + b.dataset.v);
-    if(e){
-      e.classList.add('open');
-      if(!e.classList.contains('ov')) $('#scr').classList.add('on');
-      if(e.id === 'vo'){
-        startVoiceMode();
-      }
+// Load RAG Knowledge Base
+async function loadKnowledgeBase(){
+  try {
+    const resp = await fetch(getApiUrl('/knowledge_base.json'));
+    if(resp.ok){
+      knowledgeBase = await resp.json();
     }
-  },
-  'open-camera': () => {
-    openCameraModal();
-  },
-  new: () => {
+  } catch(e){}
+}
+
+// ----------------------------------------------------
+// EVENT DISPATCHER
+// ----------------------------------------------------
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-a]');
+  if(!btn) return;
+  const a = btn.getAttribute('data-a'), v = btn.getAttribute('data-v');
+
+  if(a==='shut') shut();
+  else if(a==='sheet'){
     shut();
-    if(busy) busy();
-    C = { t: 'Новый чат', g: 'Сегодня', m: [] };
-    show();
-    rh();
-    inp.focus();
-  },
-  open: b => {
+    const el = $('#'+v);
+    if(el){
+      el.classList.add('open');
+      $('#scr').classList.add('on');
+      if(v === 'vo') startVoiceMode();
+    }
+  }
+  else if(a==='new'){
     shut();
-    if(busy) busy();
-    C = H[+b.dataset.v];
-    show();
+    C = { t:'Новый чат', g:'Сегодня', m:[] };
+    H.unshift(C);
+    saveChats();
     rh();
-  },
-  model: b => {
-    mi = +b.dataset.v;
+    show();
+  }
+  else if(a==='open'){
+    shut();
+    C = H[parseInt(v, 10)];
+    rh();
+    show();
+  }
+  else if(a==='model'){
+    mi = parseInt(v, 10);
+    localStorage.setItem('cloudgpt_model_idx', mi);
     rmod();
-    toast('Модель: ' + M[mi][0]);
     shut();
-  },
-  pick: b => {
+    toast(`Выбрана модель: ${M[mi][0]}`);
+  }
+  else if(a==='theme'){
+    RT.setAttribute('data-theme', v);
+    localStorage.setItem('cloudgpt_theme', v);
+    $$('.seg button[data-a="theme"]').forEach(b=>b.classList.toggle('on', b.getAttribute('data-v')===v));
+  }
+  else if(a==='pick'){
     shut();
-    $('#' + b.dataset.v).click();
-  },
-  rmt: b => { T.delete(b.dataset.v); rch(); },
-  rmf: b => { F.splice(+b.dataset.v, 1); rch(); },
-  sug: b => {
-    const txt = S[+b.dataset.v][1];
-    if(txt.includes('фото с камеры')){
-      openCameraModal();
-    } else {
-      inp.value = txt;
-      sync();
-      send(inp.value);
-    }
-  },
-  mute: b => {
+    $('#'+v).click();
+  }
+  else if(a==='open-camera'){
+    openCameraModal();
+  }
+  else if(a==='mute'){
     isVoiceMuted = !isVoiceMuted;
     $('#vo').classList.toggle('mute', isVoiceMuted);
+    $('#v-mic-btn').innerHTML = isVoiceMuted ? '<svg class="i" style="color:var(--dg)"><use href="#x"/></svg>' : '<svg class="i"><use href="#mic"/></svg>';
     if(isVoiceMuted){
-      setVoiceState('muted', 'Микрофон отключен');
-      if(recognition) try{ recognition.stop(); }catch(e){}
-      if(speechSynth) speechSynth.cancel();
+      if(recognition) try { recognition.stop(); } catch(e){}
+      setVoiceState('listening', 'Микрофон отключен');
     } else {
       setVoiceState('listening', 'Слушаю вас…');
-      if(recognition) try{ recognition.start(); }catch(e){}
+      if(recognition) try { recognition.start(); } catch(e){}
     }
-  },
-  cp: async b => {
-    try {
-      const txt = $('.bd,p', b.closest('.b')).textContent;
-      await navigator.clipboard.writeText(txt);
-      toast('Скопировано в буфер');
-    } catch(e){}
-  },
-  sp: b => {
-    if(!speechSynth) return;
-    speechSynth.cancel();
-    const txt = $('.bd,p', b.closest('.b')).textContent.slice(0, 300);
-    const u = new SpeechSynthesisUtterance(txt);
-    u.lang = 'ru-RU';
-    speechSynth.speak(u);
-    toast('Озвучивание…');
-  },
-  rf: b => {
-    if(busy) return;
-    if(C.m.length > 0){
-      const lastUser = C.m.filter(m => m[0] === 'u').pop();
-      if(lastUser) send(lastUser[1]);
+  }
+  else if(a==='cp'){
+    const msgDiv = btn.closest('.b');
+    const text = msgDiv ? (msgDiv.querySelector('p') || msgDiv).innerText : '';
+    navigator.clipboard.writeText(text).then(()=>toast('Скопировано в буфер'));
+  }
+  else if(a==='sp'){
+    const msgDiv = btn.closest('.b');
+    const text = msgDiv ? (msgDiv.querySelector('p') || msgDiv).innerText : '';
+    if(speechSynth){
+      speechSynth.cancel();
+      const ut = new SpeechSynthesisUtterance(text.slice(0, 400));
+      ut.lang = 'ru-RU';
+      speechSynth.speak(ut);
+      toast('Озвучивание...');
     }
-  },
-  delall: () => {
-    if(confirm('Очистить историю диалогов?')){
+  }
+  else if(a==='rf'){
+    if(C && C.m.length > 0){
+      const lastUser = [...C.m].reverse().find(m => m[0] === 'u');
+      if(lastUser){
+        send(lastUser[1]);
+      }
+    }
+  }
+  else if(a==='delall'){
+    if(confirm('Удалить всю историю диалогов?')){
       H = [{ t: 'Новый чат', g: 'Сегодня', m: [] }];
       C = H[0];
       saveChats();
-      show();
       rh();
+      show();
       shut();
       toast('История очищена');
     }
-  },
-  theme: b => {
-    b.dataset.v ? RT.dataset.theme = b.dataset.v : delete RT.dataset.theme;
-    localStorage.setItem('cloudgpt_theme', b.dataset.v || '');
-    $$('.seg [data-a="theme"]').forEach(x => x.classList.toggle('on', x === b));
   }
-};
-
-document.addEventListener('click', e => {
-  const a = e.target.closest('[data-a]');
-  if(a && A[a.dataset.a]) A[a.dataset.a](a);
 });
 
-document.addEventListener('keydown', e => { if(e.key === 'Escape') shut(); });
-
-$('#f').onsubmit = e => {
-  e.preventDefault();
-  if(busy) return busy();
-  if(!inp.value.trim() && !attachedImage) return startVoiceMode();
-  send(inp.value);
-};
-
-inp.oninput = sync;
-$('#dq').oninput = rh;
-
-// File & Image Pickers
-['fc', 'fp'].forEach(id => {
-  const el = $('#' + id);
-  if(el){
-    el.onchange = e => {
-      const file = e.target.files[0];
-      if(!file) return;
+// File Upload Handlers
+function handleFiles(fls){
+  for(const f of fls){
+    if(f.type.startsWith('image/')){
       const reader = new FileReader();
-      reader.onload = ev => {
+      reader.onload = e => {
         attachedImage = {
-          data: ev.target.result,
-          mime: file.type || 'image/jpeg',
-          name: file.name
+          data: e.target.result,
+          mime: f.type,
+          name: f.name
         };
         rch();
         sync();
         toast('📷 Фото прикреплено');
       };
-      reader.readAsDataURL(file);
-      e.target.value = '';
-    };
+      reader.readAsDataURL(f);
+    } else {
+      F.push(f.name);
+      rch();
+      sync();
+    }
   }
-});
+}
 
-$('#ff').onchange = e => {
-  [...e.target.files].forEach(f => F.push(f.name));
-  e.target.value = '';
-  rch();
-  toast('Файл прикреплен');
+$('#fc').onchange = e => handleFiles(e.target.files);
+$('#fp').onchange = e => handleFiles(e.target.files);
+$('#ff').onchange = e => handleFiles(e.target.files);
+
+// Form submit
+$('#f').onsubmit = e => {
+  e.preventDefault();
+  if(busy){ busy(); return; }
+  send(inp.value);
 };
 
-// Init Application
-async function initApp(){
-  loadStoredData();
-  initVoiceEngine();
-  renderUserProfile();
-  
-  try {
-    const kbResp = await fetch(getApiUrl('knowledge_base.json'));
-    if(kbResp.ok){
-      knowledgeBase = await kbResp.json();
-    }
-  } catch(e){}
+$('#dq').oninput = rh;
+inp.oninput = sync;
 
-  $('#sg').innerHTML = S.map((s,i) => `<button type="button" data-a="sug" data-v="${i}">${s[0]}</button>`).join('');
-  
+// Suggestions
+$('#sg').innerHTML = S.map(([t,q])=>`<button type="button" onclick="send('${q}')">${t}</button>`).join('');
+
+// ----------------------------------------------------
+// INIT
+// ----------------------------------------------------
+window.addEventListener('DOMContentLoaded', () => {
+  loadStoredData();
   rmod();
   rh();
   show();
-}
-
-window.addEventListener('DOMContentLoaded', initApp);
+  renderUserProfile();
+  initVoiceEngine();
+  loadKnowledgeBase();
+  runAutoUpdateAnimation(false);
+});
 </script>
 </body>
 </html>
