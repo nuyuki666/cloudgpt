@@ -184,7 +184,7 @@ def app(environ, start_response):
             resp_body = json.dumps({
                 "success": True,
                 "image_url": image_url,
-                "engine": "CloudGPT 8K Neural Render"
+                "engine": "CloudGPT"
             }).encode('utf-8')
             
             start_response('200 OK', headers)

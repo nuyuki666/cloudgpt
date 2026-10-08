@@ -236,7 +236,7 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                 
                 try:
                     import db
-                    db.save_generated_image(raw_prompt, image_url, "CloudGPT 8K Neural Render")
+                    db.save_generated_image(raw_prompt, image_url, "CloudGPT")
                 except Exception:
                     pass
 
@@ -244,7 +244,7 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                     "success": True,
                     "image_url": image_url,
                     "enhanced_prompt": enhanced_en_prompt,
-                    "engine": "CloudGPT 8K Neural Render"
+                    "engine": "CloudGPT"
                 }
                 
                 self.send_response(200)

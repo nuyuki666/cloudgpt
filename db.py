@@ -60,7 +60,7 @@ def init_db():
                 id SERIAL PRIMARY KEY,
                 prompt TEXT NOT NULL,
                 image_url TEXT NOT NULL,
-                engine VARCHAR(100) DEFAULT 'CloudGPT 8K Neural Render',
+                engine VARCHAR(100) DEFAULT 'CloudGPT',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
             """)
@@ -92,7 +92,7 @@ def save_user(email: str, name: str = "", picture: str = ""):
     finally:
         conn.close()
 
-def save_generated_image(prompt: str, image_url: str, engine: str = "CloudGPT 8K Neural Render"):
+def save_generated_image(prompt: str, image_url: str, engine: str = "CloudGPT"):
     conn = get_connection()
     if not conn:
         return False

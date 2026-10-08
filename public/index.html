@@ -293,13 +293,13 @@ button,input,select,textarea{font:inherit;color:inherit}
 <div id="update-screen">
   <div class="update-box">
     <img src="favicon.png" alt="CloudGPT" class="update-logo">
-    <h2 class="update-title">CloudGPT Neural OS</h2>
+    <h2 class="update-title">CloudGPT</h2>
     <div class="update-subtitle" id="update-sub">Проверка обновлений...</div>
     <div class="update-bar-container">
       <div class="update-bar-fill" id="update-bar"></div>
     </div>
     <div class="update-percent" id="update-pct">0%</div>
-    <div class="update-status-step" id="update-step">Инициализация ядра...</div>
+    <div class="update-status-step" id="update-step">Инициализация...</div>
   </div>
 </div>
 
@@ -485,12 +485,12 @@ button,input,select,textarea{font:inherit;color:inherit}
       </div>
 
       <div class="plan">
-        <b>CloudGPT Neural OS v4.3.0</b>
-        <span>Персональная автономная нейросеть нового поколения</span>
+        <b>CloudGPT</b>
+        <span>Персональный интеллектуальный AI-ассистент</span>
       </div>
       
       <button class="rw" onclick="runAutoUpdateAnimation(true)" style="margin-top:8px;">
-        <span>Проверить обновления<br><small id="ver-badge" style="color:var(--suc);font-weight:600">v4.3.0 (Актуальная версия)</small></span>
+        <span>Проверить обновления<br><small id="ver-badge" style="color:var(--suc);font-weight:600">Актуальная версия</small></span>
         <svg class="i"><use href="#rf"/></svg>
       </button>
 
@@ -774,19 +774,19 @@ async function generateImageFlow(rawPrompt){
       <div class="reasoning-hdr">
         <div class="reasoning-hdr-left">
           <span class="reasoning-spinner"></span>
-          <span>🎨 CloudGPT 8K Neural Render</span>
+          <span>🎨 CloudGPT</span>
         </div>
       </div>
       <div class="reasoning-cnt" style="display:block">
         <div class="reasoning-step"><span class="dot"></span><span>Анализ концепции: «${esc(prompt)}»</span></div>
-        <div class="reasoning-step"><span class="dot"></span><span>Диффузионная генерация и фотореалистичный 8K апскейл...</span></div>
+        <div class="reasoning-step"><span class="dot"></span><span>Генерация фотореалистичного изображения...</span></div>
       </div>
     </div>
   `;
   end();
 
   let imageUrl = null;
-  let engineUsed = 'CloudGPT 8K Neural Render';
+  let engineUsed = 'CloudGPT';
 
   // 1. Backend attempt
   try {
