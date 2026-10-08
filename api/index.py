@@ -107,15 +107,29 @@ def handle_vision_query(prompt: str, base64_data: str, mime_type: str = "image/j
 
 def handle_text_query(messages: list, model: str = "cloudgpt"):
     models = ['gemini-3-flash-preview', 'gemini-3.1-flash-lite-preview', 'gemini-3.1-flash-lite']
-    gemini_contents = []
     instruction = get_system_instruction(model)
     
+    sanitized_contents = []
     for m in messages:
-        role = "user" if m.get("role") in ["user", "system"] else "model"
-        gemini_contents.append({
-            "role": role,
-            "parts": [{"text": str(m.get("content", ""))}]
-        })
+        if m.get("role") == "system":
+            continue
+        role = "user" if m.get("role") in ["user", "u"] else "model"
+        content_str = str(m.get("content", "")).strip()
+        if not content_str:
+            continue
+        if sanitized_contents and sanitized_contents[-1]["role"] == role:
+            sanitized_contents[-1]["parts"][0]["text"] += "\n\n" + content_str
+        else:
+            sanitized_contents.append({
+                "role": role,
+                "parts": [{"text": content_str}]
+            })
+            
+    while sanitized_contents and sanitized_contents[0]["role"] != "user":
+        sanitized_contents.pop(0)
+        
+    if not sanitized_contents:
+        sanitized_contents.append({"role": "user", "parts": [{"text": "Привет"}]})
         
     for model_name in models:
         try:
@@ -124,10 +138,14 @@ def handle_text_query(messages: list, model: str = "cloudgpt"):
                 "system_instruction": {
                     "parts": [{"text": instruction}]
                 },
-                "contents": gemini_contents
+                "contents": sanitized_contents,
+                "generationConfig": {
+                    "maxOutputTokens": 4096,
+                    "temperature": 0.7
+                }
             }
             req = urllib.request.Request(url, data=json.dumps(payload).encode('utf-8'), headers={'Content-Type': 'application/json'}, method='POST')
-            with urllib.request.urlopen(req, timeout=18) as resp:
+            with urllib.request.urlopen(req, timeout=22) as resp:
                 res = json.loads(resp.read().decode())
                 candidates = res.get('candidates', [])
                 if candidates:

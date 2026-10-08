@@ -643,7 +643,7 @@ function copyCodeFromBlock(btn){
 
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.remove('on'),2000)}
 const shut=()=>{$$('.sh,.dr,.ov').forEach(x=>x.classList.remove('open'));$('#scr').classList.remove('on');stopVoiceMode();};
-const end=()=>{ch.scrollTop=ch.scrollHeight};
+const end=()=>{ requestAnimationFrame(()=>{ ch.scrollTop = ch.scrollHeight; }); };
 const sync=()=>$('#mu').setAttribute('href',busy?'#x':(inp.value.trim()||attachedImage)?'#snd':'#mic');
 
 function addMsg(r, t, imUrl, engine, attachedImgData){
@@ -857,10 +857,23 @@ async function callGeminiDirect(query, imgData, messagesPayload, customSystemPro
       ]
     }];
   } else {
-    contents = messagesPayload.filter(m => m.role !== 'system').map(m => ({
-      role: m.role === 'user' ? 'user' : 'model',
-      parts: [{ text: String(m.content || '') }]
-    }));
+    const rawList = (messagesPayload || []).filter(m => m.role !== 'system');
+    for(const m of rawList){
+      const role = (m.role === 'user' || m.role === 'u') ? 'user' : 'model';
+      const text = String(m.content || '').trim();
+      if(!text) continue;
+      if(contents.length > 0 && contents[contents.length - 1].role === role){
+        contents[contents.length - 1].parts[0].text += '\n\n' + text;
+      } else {
+        contents.push({ role: role, parts: [{ text: text }] });
+      }
+    }
+    while(contents.length > 0 && contents[0].role !== 'user'){
+      contents.shift();
+    }
+    if(!contents.length){
+      contents.push({ role: 'user', parts: [{ text: query || 'Привет' }] });
+    }
   }
 
   for(const modelName of models){
@@ -868,7 +881,11 @@ async function callGeminiDirect(query, imgData, messagesPayload, customSystemPro
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_DIRECT_KEY}`;
       const payload = {
         system_instruction: { parts: [{ text: systemInstructionText }] },
-        contents: contents
+        contents: contents,
+        generationConfig: {
+          maxOutputTokens: 4096,
+          temperature: 0.7
+        }
       };
       const resp = await fetch(url, {
         method: 'POST',
@@ -1212,11 +1229,21 @@ let visualizerAnimFrame = null;
 
 function initVoiceEngine(){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(SR){
+  if(!SR) return;
+
+  try {
+    if(recognition){
+      try { recognition.abort(); } catch(e){}
+    }
     recognition = new SR();
     recognition.lang = 'ru-RU';
     recognition.continuous = false;
     recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setVoiceState('listening', 'Слушаю вас… говорите');
+    };
 
     recognition.onresult = (e) => {
       let t = '';
@@ -1225,30 +1252,42 @@ function initVoiceEngine(){
       }
       $('#vl').textContent = t || 'Слушаю…';
       
-      if(e.results[0].isFinal && t.trim()){
+      const lastResult = e.results[e.results.length - 1];
+      if(lastResult.isFinal && t.trim()){
         handleVoiceUserTurn(t.trim());
       }
     };
 
     recognition.onerror = (e) => {
-      if(isVoiceActive && !isVoiceMuted && !speechSynth.speaking){
+      console.log('[SpeechRecognition error]', e.error);
+      if(e.error === 'not-allowed' || e.error === 'service-not-allowed'){
+        $('#vl').textContent = 'Разрешите доступ к микрофону';
+      } else if(isVoiceActive && !isVoiceMuted && (!speechSynth || !speechSynth.speaking)){
         setTimeout(() => {
-          try { recognition.start(); } catch(err){}
-        }, 600);
+          if(isVoiceActive && !isVoiceMuted) {
+            try { recognition.start(); } catch(err){}
+          }
+        }, 900);
       }
     };
 
     recognition.onend = () => {
-      if(isVoiceActive && !isVoiceMuted && !speechSynth.speaking){
-        try { recognition.start(); } catch(err){}
+      if(isVoiceActive && !isVoiceMuted && (!speechSynth || !speechSynth.speaking)){
+        setTimeout(() => {
+          if(isVoiceActive && !isVoiceMuted) {
+            try { recognition.start(); } catch(err){}
+          }
+        }, 300);
       }
     };
+  } catch(err){
+    console.log('[initVoiceEngine Error]', err);
   }
 }
 
 function setVoiceState(state, text){
   const orb = $('#v-orb');
-  orb.className = `orb ${state}`;
+  if(orb) orb.className = `orb ${state}`;
   $('#vl').textContent = text;
   $('#v-status-badge').textContent = state === 'listening' ? 'Слушаю' : (state === 'thinking' ? 'Думаю...' : 'Говорю');
 }
@@ -1260,6 +1299,8 @@ async function startVoiceMode(){
   $('#vo').classList.add('open');
   $('#vo').classList.remove('mute');
   setVoiceState('listening', 'Слушаю вас… говорите');
+
+  initVoiceEngine();
 
   // 1. Audio Visualizer Setup
   try {
@@ -1287,11 +1328,22 @@ async function startVoiceMode(){
       visualizerAnimFrame = requestAnimationFrame(updateOrbPulse);
     };
     updateOrbPulse();
-  } catch(e){}
+  } catch(e){
+    console.log('[Voice AudioContext error]', e);
+  }
 
   // 2. Speech Recognition
   if(recognition){
-    try { recognition.start(); } catch(e){}
+    try {
+      recognition.start();
+    } catch(e){
+      try {
+        initVoiceEngine();
+        recognition.start();
+      } catch(err){}
+    }
+  } else {
+    $('#vl').textContent = 'Слушаю вас… Нажмите на сферу для ответа';
   }
 }
 
@@ -1731,7 +1783,20 @@ $('#ff').onchange = e => handleFiles(e.target.files);
 $('#f').onsubmit = e => {
   e.preventDefault();
   if(busy){ busy(); return; }
-  send(inp.value);
+  const text = inp.value.trim();
+  if(!text && !attachedImage){
+    startVoiceMode();
+    return;
+  }
+  send(text);
+};
+
+$('#mc').onclick = e => {
+  const text = inp.value.trim();
+  if(!text && !attachedImage && !busy){
+    e.preventDefault();
+    startVoiceMode();
+  }
 };
 
 $('#dq').oninput = rh;
