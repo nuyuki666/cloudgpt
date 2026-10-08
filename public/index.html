@@ -265,14 +265,14 @@ button,input,select,textarea{font:inherit;color:inherit}
 .google-user-card img{width:46px;height:46px;border-radius:22%;object-fit:cover;border:2px solid var(--ac)}
 
 /* Real Google Sign-in Modal */
-#google-login-modal{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:90;display:none;align-items:center;justify-content:center;padding:20px}
+#google-login-modal{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(10px);z-index:90;display:none;align-items:center;justify-content:center;padding:20px}
 #google-login-modal.open{display:flex}
-.google-dialog{background:var(--sf);border:1px solid var(--ln);border-radius:24px;max-width:340px;width:100%;padding:24px;box-shadow:var(--sh);text-align:center}
-.google-dialog h3{margin:12px 0 6px;font-size:19px;font-weight:700}
-.google-dialog p{font-size:13.5px;color:var(--mu);margin:0 0 18px}
-.google-acc-btn{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:1px solid var(--ln);border-radius:16px;background:var(--bub);margin-bottom:10px;cursor:pointer;text-align:left;transition:background .15s}
-.google-acc-btn:hover{background:var(--ln)}
-.google-acc-btn img{width:36px;height:36px;border-radius:22%}
+.google-dialog{background:var(--sf);border:1px solid var(--ln);border-radius:26px;max-width:340px;width:100%;padding:24px 20px;box-shadow:0 24px 60px rgba(0,0,0,0.7);text-align:center}
+.google-dialog h3{margin:8px 0 6px;font-size:18.5px;font-weight:700}
+.google-dialog p{font-size:13px;color:var(--mu);margin:0 0 16px;line-height:1.4}
+.google-input{width:100%;background:rgba(13,15,32,0.6);border:1px solid var(--ln);border-radius:14px;padding:12px 14px;color:var(--tx);font-size:14px;outline:none;transition:border-color .2s;box-sizing:border-box}
+.google-input:focus{border-color:var(--ac)}
+.google-input::placeholder{color:var(--mu)}
 
 #toast{position:absolute;left:50%;bottom:90px;transform:translate(-50%,16px);background:var(--tx);color:var(--bg);padding:9px 16px;border-radius:20px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:50;white-space:nowrap;box-shadow:var(--sh)}
 #toast.on{opacity:1;transform:translate(-50%,0)}
@@ -448,9 +448,9 @@ button,input,select,textarea{font:inherit;color:inherit}
     <div class="google-dialog">
       <svg style="width:38px;height:38px;margin-bottom:8px"><use href="#gg"/></svg>
       <h3>Вход в аккаунт Google</h3>
-      <p>Выберите ваш Google аккаунт для облачной синхронизации CloudGPT</p>
+      <p>Синхронизируйте историю диалогов, базу знаний и персональные настройки через аккаунт Google</p>
       
-      <!-- Official Google Sign-In Button Container -->
+      <!-- Official Google Sign-In Button Container (GIS) -->
       <div id="g_id_onload"
            data-client_id="674681604128-0a0q301q4v3cch1e9t8qknflcv80j00o.apps.googleusercontent.com"
            data-callback="handleGoogleCredentialResponse"
@@ -458,32 +458,21 @@ button,input,select,textarea{font:inherit;color:inherit}
       </div>
       <div id="google-gsi-btn" style="margin-bottom:12px;display:flex;justify-content:center;"></div>
 
-      <button class="google-acc-btn" onclick="triggerGoogleOAuthPopup()">
-        <svg style="width:24px;height:24px;flex:none;"><use href="#gg"/></svg>
-        <div style="flex:1;overflow:hidden">
-          <b style="font-size:14px;display:block">Окно авторизации Google</b>
-          <span style="font-size:12px;color:var(--mu);display:block">Открыть официальный OAuth2 экран</span>
-        </div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
+        <input type="email" id="google-email-input" class="google-input" placeholder="Введите ваш Gmail (user@gmail.com)" autocomplete="email">
+        <input type="text" id="google-name-input" class="google-input" placeholder="Ваше имя (необязательно)">
+      </div>
+
+      <button class="btn" style="width:100%;margin-bottom:8px;" onclick="submitGoogleLoginForm()">
+        <svg style="width:18px;height:18px"><use href="#gg"/></svg>
+        Войти в аккаунт
       </button>
 
-      <button class="google-acc-btn" onclick="performRealGoogleAuth('nuyuki666@gmail.com', 'nuyuki', 'https://lh3.googleusercontent.com/a/ACg8ocISVj2zC_Y1yV4cZ5-w=s96-c')">
-        <img src="https://lh3.googleusercontent.com/a/ACg8ocISVj2zC_Y1yV4cZ5-w=s96-c" alt="User">
-        <div style="flex:1;overflow:hidden">
-          <b style="font-size:14px;display:block">nuyuki (Быстрый вход)</b>
-          <span style="font-size:12px;color:var(--mu);display:block">nuyuki666@gmail.com</span>
-        </div>
-        <svg class="i ck" style="color:var(--suc);width:18px;height:18px"><use href="#ck"/></svg>
+      <button class="btn-secondary" style="width:100%;margin-bottom:8px;" onclick="triggerGoogleOAuthPopup()">
+        Открыть окно Google OAuth
       </button>
 
-      <button class="google-acc-btn" onclick="promptCustomGoogleAuth()">
-        <span class="av" style="width:36px;height:36px;background:var(--ln);color:var(--tx);font-size:13px">G</span>
-        <div style="flex:1;overflow:hidden">
-          <b style="font-size:14px;display:block">Войти с другим аккаунтом</b>
-          <span style="font-size:12px;color:var(--mu);display:block">Ввести адрес Gmail вручную</span>
-        </div>
-      </button>
-
-      <button class="btn" style="width:100%;margin-top:10px;background:var(--bub);color:var(--tx)" onclick="closeGoogleLoginModal()">Отмена</button>
+      <button class="btn-secondary" style="width:100%;" onclick="closeGoogleLoginModal()">Отмена</button>
     </div>
   </div>
 
@@ -1464,6 +1453,10 @@ function triggerGoogleOAuthPopup(){
 
 function openGoogleLoginModal(){
   shut();
+  const emailInp = $('#google-email-input');
+  const nameInp = $('#google-name-input');
+  if(emailInp) emailInp.value = '';
+  if(nameInp) nameInp.value = '';
   $('#google-login-modal').classList.add('open');
   initGoogleAuth();
 }
@@ -1472,11 +1465,33 @@ function closeGoogleLoginModal(){
   $('#google-login-modal').classList.remove('open');
 }
 
+function submitGoogleLoginForm(){
+  const emailInp = $('#google-email-input');
+  const nameInp = $('#google-name-input');
+  const email = emailInp ? emailInp.value.trim() : '';
+  let name = nameInp ? nameInp.value.trim() : '';
+
+  if(!email || !email.includes('@')){
+    toast('⚠️ Введите адрес Google Email (Gmail)');
+    if(emailInp) emailInp.focus();
+    return;
+  }
+
+  if(!name){
+    const prefix = email.split('@')[0];
+    name = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+  }
+
+  const avatarUrl = 'https://lh3.googleusercontent.com/a/default-user=s96-c';
+  performRealGoogleAuth(email, name, avatarUrl);
+}
+
 async function performRealGoogleAuth(email, name, picture){
+  if(!email) return;
   currentUser = {
-    name: name || 'nuyuki',
-    email: email || 'nuyuki666@gmail.com',
-    picture: picture || 'https://lh3.googleusercontent.com/a/ACg8ocISVj2zC_Y1yV4cZ5-w=s96-c',
+    name: name || email.split('@')[0],
+    email: email,
+    picture: picture || 'https://lh3.googleusercontent.com/a/default-user=s96-c',
     verified: true,
     provider: 'google'
   };
@@ -1496,13 +1511,6 @@ async function performRealGoogleAuth(email, name, picture){
   toast(`✅ Вход выполнен: ${currentUser.name}`);
 }
 
-function promptCustomGoogleAuth(){
-  const customEmail = prompt('Введите ваш Google Email (Gmail):', 'myaccount@gmail.com');
-  if(!customEmail) return;
-  const username = customEmail.split('@')[0];
-  performRealGoogleAuth(customEmail, username, `https://lh3.googleusercontent.com/a/default-user=s96-c`);
-}
-
 function handleGoogleSignOut(){
   currentUser = null;
   localStorage.removeItem('cloudgpt_google_user');
@@ -1517,27 +1525,31 @@ function renderUserProfile(){
   const sideName = $('#sidebar-user-name');
   const sideStatus = $('#sidebar-user-status');
 
-  if(currentUser){
-    signedInBlock.style.display = 'flex';
-    signInPrompt.style.display = 'none';
-    $('#google-user-name').textContent = currentUser.name;
-    $('#google-user-email').textContent = currentUser.email;
-    if(currentUser.picture){
+  if(currentUser && currentUser.email){
+    if(signedInBlock) signedInBlock.style.display = 'flex';
+    if(signInPrompt) signInPrompt.style.display = 'none';
+    if($('#google-user-name')) $('#google-user-name').textContent = currentUser.name;
+    if($('#google-user-email')) $('#google-user-email').textContent = currentUser.email;
+    if(currentUser.picture && $('#google-user-img')){
       $('#google-user-img').src = currentUser.picture;
-      sideAvatar.innerHTML = `<img src="${currentUser.picture}" alt="${currentUser.name}">`;
-    } else {
-      sideAvatar.textContent = currentUser.name.slice(0, 2).toUpperCase();
+      if(sideAvatar) sideAvatar.innerHTML = `<img src="${currentUser.picture}" alt="${currentUser.name}">`;
+    } else if(sideAvatar){
+      sideAvatar.textContent = (currentUser.name || 'G').slice(0, 2).toUpperCase();
     }
-    sideName.textContent = currentUser.name;
-    sideStatus.textContent = 'Google Аккаунт ✓';
-    sideStatus.style.color = 'var(--suc)';
+    if(sideName) sideName.textContent = currentUser.name;
+    if(sideStatus){
+      sideStatus.textContent = 'Google Аккаунт ✓';
+      sideStatus.style.color = 'var(--suc)';
+    }
   } else {
-    signedInBlock.style.display = 'none';
-    signInPrompt.style.display = 'block';
-    sideAvatar.textContent = 'CG';
-    sideName.textContent = 'Аккаунт Google';
-    sideStatus.textContent = 'Войти';
-    sideStatus.style.color = 'var(--mu)';
+    if(signedInBlock) signedInBlock.style.display = 'none';
+    if(signInPrompt) signInPrompt.style.display = 'block';
+    if(sideAvatar) sideAvatar.innerHTML = '<svg style="width:20px;height:20px;color:var(--mu);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+    if(sideName) sideName.textContent = 'Гость';
+    if(sideStatus){
+      sideStatus.textContent = 'Не авторизован';
+      sideStatus.style.color = 'var(--mu)';
+    }
   }
 }
 
