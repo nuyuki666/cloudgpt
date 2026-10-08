@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no, viewport-fit=cover">
 <title>CloudGPT</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -33,42 +33,91 @@
   --ln:#E2E5F2;--ac:#4F5BFF;--on:#FFFFFF;--dg:#D92D20;--suc:#059669;--stage:#E9ECF8;
   --sh:0 4px 18px rgba(30,36,90,.12);--card-bg:#FFFFFF;
 }
-*,*::before,*::after{box-sizing:inherit}
+*,*::before,*::after{box-sizing:border-box}
 [hidden]{display:none!important}
-html,body{height:100%;margin:0;padding:0;overflow:hidden;background:var(--bg);color:var(--tx)}
-body{font:400 16px/1.5 Onest,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;-webkit-tap-highlight-color:transparent;user-select:text}
+
+/* Rigid Non-Stretching Layout */
+html,body{
+  position:fixed;
+  width:100vw;
+  max-width:100vw;
+  height:100%;
+  margin:0;
+  padding:0;
+  overflow:hidden;
+  overflow-x:hidden;
+  overscroll-behavior:none;
+  overscroll-behavior-x:none;
+  overscroll-behavior-y:none;
+  touch-action:pan-y;
+  background:var(--bg);
+  color:var(--tx);
+  -webkit-user-select:none;
+  user-select:none;
+}
+body{font:400 16px/1.5 Onest,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 .i{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .lg{width:24px;height:24px;flex:none}.sp{flex:1}
 
 /* Main App Container */
-.app-container{position:relative;width:100%;height:100%;display:flex;flex-direction:column;background:var(--bg);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-.hd{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;flex:none;z-index:10}
+.app-container{
+  position:relative;
+  width:100vw;
+  max-width:100vw;
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  overflow-x:hidden;
+  overscroll-behavior:none;
+  touch-action:pan-y;
+  background:var(--bg);
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.hd{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;flex:none;z-index:10;width:100%;max-width:100vw}
 .rb,.mp{border:1px solid var(--ln);background:var(--sf);box-shadow:var(--sh);height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .12s}
 .rb:active,.mp:active{transform:scale(.95)}
 .rb{width:44px;border-radius:50%}.mp{gap:8px;padding:0 16px;border-radius:22px;font-weight:700;font-size:15px;letter-spacing:-0.2px}
 .mp .i{width:18px;height:18px;color:var(--mu)}
 
-/* Chat stream */
-.ch{flex:1;min-height:0;overflow-y:auto;padding:12px 16px 8px;display:flex;flex-direction:column;gap:16px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+/* Chat stream (Fixed width, non-stretching) */
+.ch{
+  flex:1;
+  min-height:0;
+  width:100%;
+  max-width:100vw;
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+  overscroll-behavior-x:none;
+  touch-action:pan-y;
+  padding:12px 16px 8px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
 .ch::-webkit-scrollbar{display:none}
-#thr{display:flex;flex-direction:column;gap:16px}
+#thr{display:flex;flex-direction:column;gap:16px;width:100%;max-width:100%;overflow-x:hidden}
 .hero{display:none;flex-direction:column;align-items:center;gap:10px;margin:auto;text-align:center;padding:24px 0}
 .hero img.hero-logo{width:68px;height:68px;object-fit:contain;margin-bottom:4px;filter:drop-shadow(0 4px 18px rgba(116,128,255,0.45))}
 .hero h1{font-size:25px;margin:0;font-weight:800;letter-spacing:-0.3px}
 .hero p{margin:0;color:var(--mu);font-size:14.5px}
 .ch.e .hero{display:flex}.ch.e #thr{display:none}
 
-/* Messages with Smooth Animations */
-.u{align-self:flex-end;max-width:86%;background:var(--bub);padding:11px 16px;border-radius:20px 20px 4px 20px;overflow-wrap:anywhere;white-space:pre-wrap;font-size:15.5px;box-shadow:var(--sh);animation:msg-in .25s ease-out}
+/* Messages */
+.u{align-self:flex-end;max-width:88%;background:var(--bub);padding:11px 16px;border-radius:20px 20px 4px 20px;overflow-wrap:anywhere;word-break:break-word;white-space:pre-wrap;font-size:15.5px;box-shadow:var(--sh);animation:msg-in .25s ease-out;-webkit-user-select:text;user-select:text}
 .u img.user-attached-preview{display:block;max-width:100%;max-height:220px;border-radius:14px;margin-bottom:8px;object-fit:cover}
-.b{align-self:flex-start;max-width:100%;font-size:15.5px;line-height:1.6;animation:msg-in .25s ease-out}
-.b p,.bd{margin:0 0 8px;overflow-wrap:anywhere}
+.b{align-self:flex-start;max-width:100%;width:100%;font-size:15.5px;line-height:1.6;animation:msg-in .25s ease-out;-webkit-user-select:text;user-select:text;overflow-x:hidden}
+.b p,.bd{margin:0 0 8px;overflow-wrap:anywhere;word-break:break-word}
 @keyframes msg-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 /* Deep Reasoning Component */
-.reasoning-block{border:1px solid var(--ln);background:rgba(25,28,54,0.7);backdrop-filter:blur(6px);border-radius:14px;margin-bottom:12px;overflow:hidden;font-size:13px;transition:border-color .2s}
+.reasoning-block{border:1px solid var(--ln);background:rgba(25,28,54,0.7);backdrop-filter:blur(6px);border-radius:14px;margin-bottom:12px;overflow:hidden;font-size:13px;transition:border-color .2s;width:100%;max-width:100%}
 .reasoning-block.thinking{border-color:var(--ac);box-shadow:0 0 16px rgba(116,128,255,0.2)}
 .reasoning-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;cursor:pointer;color:var(--mu);font-weight:600;user-select:none;transition:background .15s}
 .reasoning-hdr:hover{color:var(--tx);background:var(--bub)}
@@ -81,15 +130,15 @@ button,input,select,textarea{font:inherit;color:inherit}
 .reasoning-step:last-child{margin-bottom:0}
 .reasoning-step .dot{width:6px;height:6px;border-radius:50%;background:var(--ac);margin-top:6px;flex:none}
 
-/* Code Blocks with Header & Copy Button */
-.code-block-wrapper{position:relative;margin:10px 0;border-radius:14px;overflow:hidden;border:1px solid var(--ln);background:#0E1122;box-shadow:var(--sh)}
+/* Code Blocks (Never stretches viewport) */
+.code-block-wrapper{position:relative;margin:10px 0;border-radius:14px;overflow:hidden;border:1px solid var(--ln);background:#0E1122;box-shadow:var(--sh);width:100%;max-width:100%}
 .code-header{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:#151833;border-bottom:1px solid var(--ln);font-size:12px;color:var(--mu);font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
 .code-copy-btn{border:0;background:var(--bub);color:var(--tx);padding:4px 10px;border-radius:8px;font-size:11.5px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-weight:600;transition:background .15s}
 .code-copy-btn:hover{background:var(--ac);color:#fff}
 .code-copy-btn.copied{background:var(--suc);color:#0D0F20}
-.b pre{background:none;color:#EEF0FF;padding:12px 14px;overflow-x:auto;font-size:13.5px;font-family:Consolas,SFMono-Regular,monospace;margin:0}
-.b code{background:var(--bub);padding:2px 6px;border-radius:6px;font-size:13.5px;font-family:Consolas,monospace}
-.b pre code{background:none;padding:0}
+.b pre{background:none;color:#EEF0FF;padding:12px 14px;overflow-x:auto;max-width:100%;font-size:13.5px;font-family:Consolas,SFMono-Regular,monospace;margin:0;-webkit-overflow-scrolling:touch}
+.b code{background:var(--bub);padding:2px 6px;border-radius:6px;font-size:13.5px;font-family:Consolas,monospace;word-break:break-word}
+.b pre code{background:none;padding:0;word-break:normal}
 
 /* Streaming Blinking Cursor */
 .streaming-cursor{display:inline-block;width:7px;height:16px;background:var(--ac);margin-left:3px;vertical-align:-2px;border-radius:2px;animation:stream-blink 0.7s infinite}
@@ -102,7 +151,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .b.ld .ac{display:none}
 
 /* Generated Images */
-.generated-image-card{margin:8px 0;border-radius:20px;overflow:hidden;border:1px solid var(--ln);background:var(--bub);box-shadow:var(--sh);animation:msg-in .3s ease-out}
+.generated-image-card{margin:8px 0;border-radius:20px;overflow:hidden;border:1px solid var(--ln);background:var(--bub);box-shadow:var(--sh);animation:msg-in .3s ease-out;width:100%;max-width:100%}
 .generated-image-card img{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;cursor:pointer}
 .img-footer{padding:8px 14px;display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--mu);background:var(--sf)}
 .img-download-btn{border:0;background:var(--bub);color:var(--tx);padding:6px 14px;border-radius:12px;font-weight:600;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;text-decoration:none}
@@ -121,7 +170,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .image-preview-chip img{width:28px;height:28px;border-radius:6px;object-fit:cover}
 
 /* Bottom Input Bar */
-.cm{flex:none;display:flex;align-items:center;gap:6px;margin:6px 12px 10px;padding:6px;background:var(--sf);border:1px solid var(--ln);border-radius:30px;box-shadow:var(--sh)}
+.cm{flex:none;display:flex;align-items:center;gap:6px;margin:6px 12px 10px;padding:6px;background:var(--sf);border:1px solid var(--ln);border-radius:30px;box-shadow:var(--sh);width:calc(100% - 24px)}
 .cm .pl,.cm .cb{width:40px;height:40px;border:0;background:none;border-radius:50%;display:grid;place-items:center;cursor:pointer;flex:none}.cm .cb{color:var(--mu)}
 .cm input{flex:1;min-width:0;border:0;background:none;outline:0;padding:8px 4px;font-size:15.5px}.cm input::placeholder{color:var(--mu)}
 .mc{width:42px;height:42px;border-radius:50%;border:0;background:var(--ac);color:var(--on);display:grid;place-items:center;cursor:pointer;flex:none;transition:transform .15s}
@@ -203,13 +252,14 @@ button,input,select,textarea{font:inherit;color:inherit}
 .google-user-card{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--ln);border-radius:18px;background:var(--sf);margin-bottom:12px}
 .google-user-card img{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--ac)}
 
-/* Google Sign-in Modal */
-#google-login-modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:90;display:none;align-items:center;justify-content:center;padding:20px}
+/* Real Google Sign-in Modal */
+#google-login-modal{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:90;display:none;align-items:center;justify-content:center;padding:20px}
 #google-login-modal.open{display:flex}
 .google-dialog{background:var(--sf);border:1px solid var(--ln);border-radius:24px;max-width:340px;width:100%;padding:24px;box-shadow:var(--sh);text-align:center}
 .google-dialog h3{margin:12px 0 6px;font-size:19px;font-weight:700}
 .google-dialog p{font-size:13.5px;color:var(--mu);margin:0 0 18px}
-.google-acc-btn{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:1px solid var(--ln);border-radius:16px;background:var(--bub);margin-bottom:10px;cursor:pointer;text-align:left}
+.google-acc-btn{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:1px solid var(--ln);border-radius:16px;background:var(--bub);margin-bottom:10px;cursor:pointer;text-align:left;transition:background .15s}
+.google-acc-btn:hover{background:var(--ln)}
 .google-acc-btn img{width:36px;height:36px;border-radius:50%}
 
 #toast{position:absolute;left:50%;bottom:90px;transform:translate(-50%,16px);background:var(--tx);color:var(--bg);padding:9px 16px;border-radius:20px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:50;white-space:nowrap;box-shadow:var(--sh)}
@@ -366,14 +416,30 @@ button,input,select,textarea{font:inherit;color:inherit}
   <!-- Real Google Login Modal -->
   <div id="google-login-modal">
     <div class="google-dialog">
-      <svg style="width:36px;height:36px;margin-bottom:8px"><use href="#gg"/></svg>
+      <svg style="width:38px;height:38px;margin-bottom:8px"><use href="#gg"/></svg>
       <h3>Вход в аккаунт Google</h3>
-      <p>Выберите ваш Google аккаунт для синхронизации CloudGPT</p>
+      <p>Выберите ваш Google аккаунт для облачной синхронизации CloudGPT</p>
       
-      <button class="google-acc-btn" onclick="performRealGoogleAuth('nuyuki666@gmail.com', 'nuyuki')">
+      <!-- Official Google Sign-In Button Container -->
+      <div id="g_id_onload"
+           data-client_id="674681604128-0a0q301q4v3cch1e9t8qknflcv80j00o.apps.googleusercontent.com"
+           data-callback="handleGoogleCredentialResponse"
+           data-auto_prompt="false">
+      </div>
+      <div id="google-gsi-btn" style="margin-bottom:12px;display:flex;justify-content:center;"></div>
+
+      <button class="google-acc-btn" onclick="triggerGoogleOAuthPopup()">
+        <svg style="width:24px;height:24px;flex:none;"><use href="#gg"/></svg>
+        <div style="flex:1;overflow:hidden">
+          <b style="font-size:14px;display:block">Окно авторизации Google</b>
+          <span style="font-size:12px;color:var(--mu);display:block">Открыть официальный OAuth2 экран</span>
+        </div>
+      </button>
+
+      <button class="google-acc-btn" onclick="performRealGoogleAuth('nuyuki666@gmail.com', 'nuyuki', 'https://lh3.googleusercontent.com/a/ACg8ocISVj2zC_Y1yV4cZ5-w=s96-c')">
         <img src="https://lh3.googleusercontent.com/a/ACg8ocISVj2zC_Y1yV4cZ5-w=s96-c" alt="User">
         <div style="flex:1;overflow:hidden">
-          <b style="font-size:14px;display:block">nuyuki</b>
+          <b style="font-size:14px;display:block">nuyuki (Быстрый вход)</b>
           <span style="font-size:12px;color:var(--mu);display:block">nuyuki666@gmail.com</span>
         </div>
         <svg class="i ck" style="color:var(--suc);width:18px;height:18px"><use href="#ck"/></svg>
@@ -383,7 +449,7 @@ button,input,select,textarea{font:inherit;color:inherit}
         <span class="av" style="width:36px;height:36px;background:var(--ln);color:var(--tx);font-size:13px">G</span>
         <div style="flex:1;overflow:hidden">
           <b style="font-size:14px;display:block">Войти с другим аккаунтом</b>
-          <span style="font-size:12px;color:var(--mu);display:block">Ввести Gmail вручную</span>
+          <span style="font-size:12px;color:var(--mu);display:block">Ввести адрес Gmail вручную</span>
         </div>
       </button>
 
@@ -507,7 +573,7 @@ const md = window.markdownit({
   linkify: true,
   breaks: true,
   highlight: function (str, lang) {
-    return ''; // handled by custom fence rule
+    return '';
   }
 });
 
@@ -814,7 +880,6 @@ async function streamTextToMessage(bd, fullText, reasoningHtml, abortSignal){
   let currentIndex = 0;
   const totalLen = fullText.length;
   
-  // Dynamic typing speed: fast for long code, responsive for short texts
   const chunkSize = totalLen > 1800 ? 16 : (totalLen > 800 ? 8 : (totalLen > 200 ? 4 : 2));
   const delayMs = totalLen > 1800 ? 8 : (totalLen > 800 ? 12 : 18);
 
@@ -1065,14 +1130,12 @@ let currentFacingMode = 'environment';
 async function openCameraModal(){
   shut();
   
-  // Try WebRTC Stream
   try {
     const modal = $('#cam-modal');
     modal.classList.add('open');
     await startCameraStream();
   } catch(err){
     closeCameraModal();
-    // Fallback to Native Android Camera intent
     $('#fc').click();
   }
 }
@@ -1095,7 +1158,6 @@ async function startCameraStream(){
     cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
     $('#cam-video').srcObject = cameraStream;
   } catch(e){
-    // Try simpler constraints if high-res failed
     try {
       cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
       $('#cam-video').srcObject = cameraStream;
@@ -1332,18 +1394,84 @@ async function handleVoiceUserTurn(userSpeech){
 }
 
 // ----------------------------------------------------
-// REAL GOOGLE AUTHENTICATION & ACCOUNT SYNC
+// REAL GOOGLE IDENTITY SERVICES & OAUTH2 INTEGRATION
 // ----------------------------------------------------
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch(e) {
+    return null;
+  }
+}
+
+async function handleGoogleCredentialResponse(response) {
+  if (response && response.credential) {
+    const payload = parseJwt(response.credential);
+    if (payload) {
+      performRealGoogleAuth(
+        payload.email,
+        payload.name || payload.given_name || 'Google User',
+        payload.picture || 'https://lh3.googleusercontent.com/a/default-user=s96-c'
+      );
+    }
+  }
+}
+
+function initGoogleAuth() {
+  if (window.google && google.accounts && google.accounts.id) {
+    try {
+      google.accounts.id.initialize({
+        client_id: "674681604128-0a0q301q4v3cch1e9t8qknflcv80j00o.apps.googleusercontent.com",
+        callback: handleGoogleCredentialResponse,
+        auto_select: false
+      });
+      const btnEl = document.getElementById("google-gsi-btn");
+      if(btnEl){
+        google.accounts.id.renderButton(btnEl, {
+          theme: "filled_blue",
+          size: "large",
+          shape: "pill",
+          text: "signin_with",
+          logo_alignment: "left"
+        });
+      }
+    } catch(e){}
+  }
+}
+
+function triggerGoogleOAuthPopup(){
+  // Real Google OAuth 2.0 Auth Window
+  const clientId = "674681604128-0a0q301q4v3cch1e9t8qknflcv80j00o.apps.googleusercontent.com";
+  const redirectUri = window.location.origin + window.location.pathname;
+  const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token%20id_token&scope=openid%20profile%20email&nonce=${Date.now()}&prompt=select_account`;
+  
+  const width = 500, height = 600;
+  const left = (window.screen.width / 2) - (width / 2);
+  const top = (window.screen.height / 2) - (height / 2);
+  
+  const popup = window.open(oauthUrl, 'GoogleAuth', `width=${width},height=${height},top=${top},left=${left}`);
+  if(!popup || popup.closed || typeof popup.closed === 'undefined'){
+    // Popup blocked, open normal
+    window.location.href = oauthUrl;
+  }
+}
+
 function openGoogleLoginModal(){
   shut();
   $('#google-login-modal').classList.add('open');
+  initGoogleAuth();
 }
 
 function closeGoogleLoginModal(){
   $('#google-login-modal').classList.remove('open');
 }
 
-function performRealGoogleAuth(email, name, picture){
+async function performRealGoogleAuth(email, name, picture){
   currentUser = {
     name: name || 'nuyuki',
     email: email || 'nuyuki666@gmail.com',
@@ -1352,6 +1480,16 @@ function performRealGoogleAuth(email, name, picture){
     provider: 'google'
   };
   localStorage.setItem('cloudgpt_google_user', JSON.stringify(currentUser));
+  
+  // Sync to Neon PostgreSQL
+  try {
+    await fetch(getApiUrl('/api/auth/google'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(currentUser)
+    });
+  } catch(e){}
+
   closeGoogleLoginModal();
   renderUserProfile();
   toast(`✅ Вход выполнен: ${currentUser.name}`);
@@ -1390,7 +1528,7 @@ function renderUserProfile(){
       sideAvatar.textContent = currentUser.name.slice(0, 2).toUpperCase();
     }
     sideName.textContent = currentUser.name;
-    sideStatus.textContent = 'Google Аккаунт';
+    sideStatus.textContent = 'Google Аккаунт ✓';
     sideStatus.style.color = 'var(--suc)';
   } else {
     signedInBlock.style.display = 'none';
@@ -1601,6 +1739,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initVoiceEngine();
   loadKnowledgeBase();
   runAutoUpdateAnimation(false);
+  setTimeout(initGoogleAuth, 800);
 });
 </script>
 </body>
