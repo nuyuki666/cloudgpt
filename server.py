@@ -234,6 +234,12 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                 seed = int(os.urandom(2).hex(), 16)
                 image_url = f"https://image.pollinations.ai/prompt/{urllib.parse.quote(enhanced_en_prompt)}?width=1024&height=1024&model=flux&nologo=true&seed={seed}"
                 
+                try:
+                    import db
+                    db.save_generated_image(raw_prompt, image_url, "CloudGPT 8K Neural Render")
+                except Exception:
+                    pass
+
                 resp_payload = {
                     "success": True,
                     "image_url": image_url,
@@ -247,6 +253,35 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps(resp_payload).encode('utf-8'))
                 return
 
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": False, "error": str(e)}).encode('utf-8'))
+                return
+
+        # 2. Google Auth & User Profile Sync Endpoint
+        if self.path == '/api/auth/google':
+            content_length = int(self.headers.get('Content-Length', 0))
+            body_bytes = self.rfile.read(content_length)
+            
+            try:
+                data = json.loads(body_bytes.decode('utf-8'))
+                email = data.get('email', '')
+                name = data.get('name', '')
+                picture = data.get('picture', '')
+                
+                try:
+                    import db
+                    db.save_user(email, name, picture)
+                except Exception:
+                    pass
+                    
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({"success": True, "saved": True}).encode('utf-8'))
+                return
             except Exception as e:
                 self.send_response(500)
                 self.send_header('Content-Type', 'application/json')

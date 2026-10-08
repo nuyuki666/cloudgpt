@@ -216,6 +216,26 @@ def app(environ, start_response):
             start_response('500 Internal Server Error', headers)
             return [json.dumps({"success": False, "error": str(e)}).encode('utf-8')]
 
+    if path.endswith('/api/auth/google') and method == 'POST':
+        try:
+            content_length = int(environ.get('CONTENT_LENGTH', 0))
+            body_bytes = environ['wsgi.input'].read(content_length)
+            data = json.loads(body_bytes.decode('utf-8'))
+            email = data.get('email', '')
+            name = data.get('name', '')
+            picture = data.get('picture', '')
+            try:
+                import db
+                db.save_user(email, name, picture)
+            except Exception:
+                pass
+            resp_body = json.dumps({"success": True, "saved": True}).encode('utf-8')
+            start_response('200 OK', headers)
+            return [resp_body]
+        except Exception as e:
+            start_response('500 Internal Server Error', headers)
+            return [json.dumps({"success": False, "error": str(e)}).encode('utf-8')]
+
     if path.endswith('/api/models'):
         resp_body = json.dumps({
             "models": [
@@ -227,8 +247,6 @@ def app(environ, start_response):
         }).encode('utf-8')
         start_response('200 OK', headers)
         return [resp_body]
-        start_response('200 OK', headers)
-        return [resp_body]
 
     start_response('200 OK', headers)
-    return [json.dumps({"status": "CloudGPT API Online", "version": "4.2"}).encode('utf-8')]
+    return [json.dumps({"status": "CloudGPT API Online", "version": "4.3.0"}).encode('utf-8')]
