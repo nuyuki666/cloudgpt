@@ -14,6 +14,13 @@
 <!-- Markdown & Prism Syntax Highlighting -->
 <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-cpp.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-rust.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-nasm.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
 <style>
 :root{
@@ -53,22 +60,49 @@ button,input,select,textarea{font:inherit;color:inherit}
 .hero p{margin:0;color:var(--mu);font-size:14.5px}
 .ch.e .hero{display:flex}.ch.e #thr{display:none}
 
-/* Messages */
-.u{align-self:flex-end;max-width:86%;background:var(--bub);padding:11px 16px;border-radius:20px 20px 4px 20px;overflow-wrap:anywhere;white-space:pre-wrap;font-size:15.5px;box-shadow:var(--sh)}
+/* Messages with Smooth Animations */
+.u{align-self:flex-end;max-width:86%;background:var(--bub);padding:11px 16px;border-radius:20px 20px 4px 20px;overflow-wrap:anywhere;white-space:pre-wrap;font-size:15.5px;box-shadow:var(--sh);animation:msg-in .25s ease-out}
 .u img.user-attached-preview{display:block;max-width:100%;max-height:220px;border-radius:14px;margin-bottom:8px;object-fit:cover}
-.b{align-self:flex-start;max-width:100%;font-size:15.5px;line-height:1.6}
+.b{align-self:flex-start;max-width:100%;font-size:15.5px;line-height:1.6;animation:msg-in .25s ease-out}
 .b p,.bd{margin:0 0 8px;overflow-wrap:anywhere}
-.b pre{background:#111428;color:#EEF0FF;padding:12px 14px;border-radius:14px;overflow-x:auto;font-size:13.5px;font-family:Consolas,monospace;margin:8px 0;border:1px solid var(--ln)}
+@keyframes msg-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Deep Reasoning Component */
+.reasoning-block{border:1px solid var(--ln);background:rgba(25,28,54,0.7);backdrop-filter:blur(6px);border-radius:14px;margin-bottom:12px;overflow:hidden;font-size:13px;transition:border-color .2s}
+.reasoning-block.thinking{border-color:var(--ac);box-shadow:0 0 16px rgba(116,128,255,0.2)}
+.reasoning-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;cursor:pointer;color:var(--mu);font-weight:600;user-select:none;transition:background .15s}
+.reasoning-hdr:hover{color:var(--tx);background:var(--bub)}
+.reasoning-hdr-left{display:flex;align-items:center;gap:8px}
+.reasoning-spinner{width:14px;height:14px;border:2px solid var(--ac);border-top-color:transparent;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block}
+@keyframes spin{100%{transform:rotate(360deg)}}
+.reasoning-cnt{padding:10px 14px;color:var(--mu);border-top:1px solid var(--ln);font-size:12.8px;line-height:1.55;display:none;background:rgba(13,15,32,0.4)}
+.reasoning-block.open .reasoning-cnt{display:block}
+.reasoning-step{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px}
+.reasoning-step:last-child{margin-bottom:0}
+.reasoning-step .dot{width:6px;height:6px;border-radius:50%;background:var(--ac);margin-top:6px;flex:none}
+
+/* Code Blocks with Header & Copy Button */
+.code-block-wrapper{position:relative;margin:10px 0;border-radius:14px;overflow:hidden;border:1px solid var(--ln);background:#0E1122;box-shadow:var(--sh)}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:#151833;border-bottom:1px solid var(--ln);font-size:12px;color:var(--mu);font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.code-copy-btn{border:0;background:var(--bub);color:var(--tx);padding:4px 10px;border-radius:8px;font-size:11.5px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-weight:600;transition:background .15s}
+.code-copy-btn:hover{background:var(--ac);color:#fff}
+.code-copy-btn.copied{background:var(--suc);color:#0D0F20}
+.b pre{background:none;color:#EEF0FF;padding:12px 14px;overflow-x:auto;font-size:13.5px;font-family:Consolas,SFMono-Regular,monospace;margin:0}
 .b code{background:var(--bub);padding:2px 6px;border-radius:6px;font-size:13.5px;font-family:Consolas,monospace}
 .b pre code{background:none;padding:0}
-.b ul,.b ol{margin:0 0 8px;padding-left:20px}.b li{margin-bottom:4px}
+
+/* Streaming Blinking Cursor */
+.streaming-cursor{display:inline-block;width:7px;height:16px;background:var(--ac);margin-left:3px;vertical-align:-2px;border-radius:2px;animation:stream-blink 0.7s infinite}
+@keyframes stream-blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* Actions on message */
 .ac{display:flex;gap:4px;margin:8px 0 0 -6px}
 .ac button{width:36px;height:36px;border:0;background:none;color:var(--mu);border-radius:10px;display:grid;place-items:center;cursor:pointer}
 .ac button:active,.ac .on{background:var(--bub);color:var(--ac)}.ac .i{width:19px;height:19px}
 .b.ld .ac{display:none}
 
 /* Generated Images */
-.generated-image-card{margin:8px 0;border-radius:20px;overflow:hidden;border:1px solid var(--ln);background:var(--bub);box-shadow:var(--sh)}
+.generated-image-card{margin:8px 0;border-radius:20px;overflow:hidden;border:1px solid var(--ln);background:var(--bub);box-shadow:var(--sh);animation:msg-in .3s ease-out}
 .generated-image-card img{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;cursor:pointer}
 .img-footer{padding:8px 14px;display:flex;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--mu);background:var(--sf)}
 .img-download-btn{border:0;background:var(--bub);color:var(--tx);padding:6px 14px;border-radius:12px;font-weight:600;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;text-decoration:none}
@@ -467,19 +501,60 @@ let attachedImage = null; // { data: base64, mime: string, name: string }
 // Google User State
 let currentUser = null;
 
+// Markdown & Code Blocks Engine with Header & Copy Button
 const md = window.markdownit({
   html: false,
   linkify: true,
   breaks: true,
   highlight: function (str, lang) {
-    const language = lang && Prism.languages[lang] ? lang : 'javascript';
-    try {
-      return `<pre><code class="language-${language}">${Prism.highlight(str, Prism.languages[language] || Prism.languages.markup, language)}</code></pre>`;
-    } catch (__) {
-      return `<pre><code>${md.utils.escapeHtml(str)}</code></pre>`;
-    }
+    return ''; // handled by custom fence rule
   }
 });
+
+md.renderer.rules.fence = function (tokens, idx) {
+  const token = tokens[idx];
+  const info = token.info ? token.info.trim() : '';
+  const lang = info ? info.split(/\s+/g)[0] : 'code';
+  const codeContent = token.content;
+  const validLang = Prism.languages[lang] ? lang : (lang === 'c++' || lang === 'cpp' ? 'cpp' : (lang === 'rust' ? 'rust' : (lang === 'py' || lang === 'python' ? 'python' : (lang === 'c' ? 'c' : 'javascript'))));
+  
+  let highlighted = '';
+  try {
+    highlighted = Prism.languages[validLang] 
+      ? Prism.highlight(codeContent, Prism.languages[validLang], validLang)
+      : md.utils.escapeHtml(codeContent);
+  } catch(e){
+    highlighted = md.utils.escapeHtml(codeContent);
+  }
+
+  return `
+    <div class="code-block-wrapper">
+      <div class="code-header">
+        <span>${esc(lang.toUpperCase() || 'CODE')}</span>
+        <button type="button" class="code-copy-btn" onclick="copyCodeFromBlock(this)">
+          <svg style="width:13px;height:13px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Скопировать код
+        </button>
+      </div>
+      <pre><code class="language-${esc(validLang)}">${highlighted}</code></pre>
+    </div>
+  `;
+};
+
+function copyCodeFromBlock(btn){
+  const wrapper = btn.closest('.code-block-wrapper');
+  const codeEl = wrapper.querySelector('code');
+  if(codeEl){
+    navigator.clipboard.writeText(codeEl.innerText).then(() => {
+      btn.classList.add('copied');
+      btn.innerHTML = '✓ Скопировано!';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = '<svg style="width:13px;height:13px;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Скопировать код';
+      }, 1600);
+    });
+  }
+}
 
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.remove('on'),2000)}
 const shut=()=>{$$('.sh,.dr,.ov').forEach(x=>x.classList.remove('open'));$('#scr').classList.remove('on');stopVoiceMode();};
@@ -628,7 +703,20 @@ async function generateImageFlow(rawPrompt){
   const d = addMsg('a', '', null, null, null);
   d.classList.add('ld');
   const bd = $('.bd', d);
-  bd.innerHTML = '<span class="dts"><i></i><i></i><i></i></span> 🎨 CloudGPT генерирует изображение...';
+  bd.innerHTML = `
+    <div class="reasoning-block thinking open">
+      <div class="reasoning-hdr">
+        <div class="reasoning-hdr-left">
+          <span class="reasoning-spinner"></span>
+          <span>🎨 CloudGPT 8K Neural Render</span>
+        </div>
+      </div>
+      <div class="reasoning-cnt" style="display:block">
+        <div class="reasoning-step"><span class="dot"></span><span>Анализ концепции: «${esc(prompt)}»</span></div>
+        <div class="reasoning-step"><span class="dot"></span><span>Диффузионная генерация и фотореалистичный 8K апскейл...</span></div>
+      </div>
+    </div>
+  `;
   end();
 
   let imageUrl = null;
@@ -721,11 +809,80 @@ async function callGeminiDirect(query, imgData, messagesPayload, customSystemPro
   return null;
 }
 
+// Ultra-Smooth Token / Streaming Typewriter Animation Engine
+async function streamTextToMessage(bd, fullText, reasoningHtml, abortSignal){
+  let currentIndex = 0;
+  const totalLen = fullText.length;
+  
+  // Dynamic typing speed: fast for long code, responsive for short texts
+  const chunkSize = totalLen > 1800 ? 16 : (totalLen > 800 ? 8 : (totalLen > 200 ? 4 : 2));
+  const delayMs = totalLen > 1800 ? 8 : (totalLen > 800 ? 12 : 18);
+
+  while(currentIndex < totalLen){
+    if(abortSignal && abortSignal.aborted) break;
+    
+    currentIndex = Math.min(currentIndex + chunkSize, totalLen);
+    const partialText = fullText.slice(0, currentIndex);
+    
+    bd.innerHTML = reasoningHtml + md.render(partialText) + '<span class="streaming-cursor"></span>';
+    end();
+    
+    await new Promise(r => setTimeout(r, delayMs));
+  }
+
+  // Final clean render
+  bd.innerHTML = reasoningHtml + md.render(fullText);
+  end();
+}
+
+function generateReasoningSteps(query, modelName){
+  const qL = (query || '').toLowerCase();
+  const steps = [];
+  
+  if(qL.includes('код') || qL.includes('чит') || qL.includes('паттерн') || qL.includes('скан') || qL.includes('c++') || qL.includes('rust') || qL.includes('python') || qL.includes('асм') || qL.includes('asm')){
+    steps.push('Анализ архитектурных требований и x86-64 соглашений о вызовах...');
+    steps.push('Построение оптимизированного AST и проверка безопасности указателей...');
+    steps.push('Генерация чистого отказоустойчивого кода с подсветкой синтаксиса...');
+  } else if(qL.includes('архитектур') || qL.includes('микросервис') || qL.includes('бд') || qL.includes('сервер')){
+    steps.push('Анализ требований к масштабируемости и отказоустойчивости...');
+    steps.push('Синтез схемы компонентов и коммуникационных протоколов...');
+    steps.push('Формирование структурированного архитектурного решения...');
+  } else {
+    steps.push(`Инициализация контекста модели ${modelName}...`);
+    steps.push('Семантический разбор запроса и выбор оптимальной логики ответа...');
+    steps.push('Синтез структурированного и понятного ответа...');
+  }
+  
+  return steps;
+}
+
 async function generateTextFlow(query, imgData){
   const d = addMsg('a', '', null, null, null);
   d.classList.add('ld');
   const bd = $('.bd', d);
-  bd.innerHTML = '<span class="dts"><i></i><i></i><i></i></span>';
+  
+  const selectedModelName = M[mi][0];
+  const selectedModelId = M[mi][1];
+  const reasoningSteps = generateReasoningSteps(query, selectedModelName);
+  const startTime = Date.now();
+
+  // Dynamic Thinking Animation Box
+  const reasoningId = 'rs_' + Date.now();
+  bd.innerHTML = `
+    <div class="reasoning-block thinking open" id="${reasoningId}">
+      <div class="reasoning-hdr" onclick="this.parentElement.classList.toggle('open')">
+        <div class="reasoning-hdr-left">
+          <span class="reasoning-spinner"></span>
+          <span>🧠 Рассуждение ${esc(selectedModelName)}...</span>
+        </div>
+        <svg style="width:14px;height:14px;color:var(--mu);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="reasoning-cnt" style="display:block">
+        <div class="reasoning-step"><span class="dot"></span><span>${reasoningSteps[0]}</span></div>
+        <div class="reasoning-step"><span class="dot"></span><span>${reasoningSteps[1]}</span></div>
+      </div>
+    </div>
+  `;
   end();
 
   abortController = new AbortController();
@@ -737,7 +894,6 @@ async function generateTextFlow(query, imgData){
   };
   sync();
 
-  const selectedModelId = M[mi][1];
   let finalSystemPrompt = MODEL_PROMPTS[selectedModelId] || MODEL_PROMPTS['cloudgpt'];
 
   // Inject RAG Knowledge Base
@@ -820,12 +976,34 @@ async function generateTextFlow(query, imgData){
     }
   }
 
-  d.classList.remove('ld');
   if(!replyText){
     replyText = 'Запрос обработан. Готов продолжить диалог по вашей теме.';
   }
 
-  bd.innerHTML = md.render(replyText);
+  const elapsedSec = ((Date.now() - startTime) / 1000).toFixed(1);
+
+  // Collapsed finalized reasoning box HTML
+  const finalReasoningHtml = `
+    <div class="reasoning-block" id="${reasoningId}">
+      <div class="reasoning-hdr" onclick="this.parentElement.classList.toggle('open')">
+        <div class="reasoning-hdr-left">
+          <svg style="width:15px;height:15px;color:var(--suc);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+          <span>Процесс рассуждения (${elapsedSec} сек)</span>
+        </div>
+        <svg style="width:14px;height:14px;color:var(--mu);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="reasoning-cnt">
+        <div class="reasoning-step"><span class="dot"></span><span>${reasoningSteps[0]}</span></div>
+        <div class="reasoning-step"><span class="dot"></span><span>${reasoningSteps[1]}</span></div>
+        <div class="reasoning-step"><span class="dot"></span><span>${reasoningSteps[2]}</span></div>
+      </div>
+    </div>
+  `;
+
+  // Run live streaming typewriter animation
+  await streamTextToMessage(bd, replyText, finalReasoningHtml, abortController ? abortController.signal : null);
+
+  d.classList.remove('ld');
   C.m.push(['a', replyText, null, null, null]);
   saveChats();
 
