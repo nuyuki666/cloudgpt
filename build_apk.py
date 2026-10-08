@@ -22,22 +22,34 @@ ANDROID_JAR = str(TOOLS_DIR / "android.jar")
 UBER_SIGNER = str(TOOLS_DIR / "uber-apk-signer.jar")
 
 KEYSTORE_PATH = BASE_DIR / "cloudgpt.keystore"
-OUTPUT_APK = BASE_DIR / "CloudGPT-Mobile.apk"
+OUTPUT_APK = BASE_DIR / "CloudGPT.apk"
 
 
 def log(msg):
     print(f"[APK BUILDER] {msg}")
 
 
-def generate_app_icon(dest_path, size=(192, 192)):
-    """Generate high quality PNG app icon from user images.png."""
+def generate_app_icon(dest_path, size=(192, 192), is_circle=False):
+    """Generate high quality PNG app icon with smooth rounded corners."""
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
     icon_source = BASE_DIR / "images.png"
     if icon_source.exists():
         try:
-            from PIL import Image
+            from PIL import Image, ImageDraw
             img = Image.open(icon_source).convert('RGBA')
-            dest_path.parent.mkdir(parents=True, exist_ok=True)
-            img.resize(size, Image.Resampling.LANCZOS).save(dest_path, "PNG")
+            img = img.resize(size, Image.Resampling.LANCZOS)
+            
+            mask = Image.new('L', size, 0)
+            draw = ImageDraw.Draw(mask)
+            if is_circle:
+                draw.ellipse([(0, 0), (size[0], size[1])], fill=255)
+            else:
+                radius = int(min(size) * 0.22)
+                draw.rounded_rectangle([(0, 0), (size[0], size[1])], radius=radius, fill=255)
+            
+            rounded = Image.new('RGBA', size, (0, 0, 0, 0))
+            rounded.paste(img, (0, 0), mask=mask)
+            rounded.save(dest_path, "PNG")
             return
         except Exception:
             pass
@@ -45,7 +57,7 @@ def generate_app_icon(dest_path, size=(192, 192)):
         from PIL import Image, ImageDraw
         img = Image.new('RGBA', size, color=(13, 15, 32, 255))
         draw = ImageDraw.Draw(img)
-        draw.ellipse((4, 4, size[0] - 4, size[1] - 4), fill=(79, 91, 255, 255))
+        draw.rounded_rectangle([(2, 2), (size[0] - 2, size[1] - 2)], radius=int(size[0]*0.22), fill=(116, 128, 255, 255))
         dest_path.parent.mkdir(parents=True, exist_ok=True)
         img.save(dest_path, "PNG")
     except Exception:
@@ -81,6 +93,7 @@ def setup_project_structure():
     <application
         android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:usesCleartextTraffic="true"
@@ -113,11 +126,9 @@ def setup_project_structure():
 </resources>
 """)
 
-    generate_app_icon(BUILD_DIR / "res" / "mipmap-mdpi" / "ic_launcher.png", (48, 48))
-    generate_app_icon(BUILD_DIR / "res" / "mipmap-hdpi" / "ic_launcher.png", (72, 72))
-    generate_app_icon(BUILD_DIR / "res" / "mipmap-xhdpi" / "ic_launcher.png", (96, 96))
-    generate_app_icon(BUILD_DIR / "res" / "mipmap-xxhdpi" / "ic_launcher.png", (144, 144))
-    generate_app_icon(BUILD_DIR / "res" / "mipmap-xxxhdpi" / "ic_launcher.png", (192, 192))
+    for name, sz in [("mipmap-mdpi", 48), ("mipmap-hdpi", 72), ("mipmap-xhdpi", 96), ("mipmap-xxhdpi", 144), ("mipmap-xxxhdpi", 192)]:
+        generate_app_icon(BUILD_DIR / "res" / name / "ic_launcher.png", (sz, sz), is_circle=False)
+        generate_app_icon(BUILD_DIR / "res" / name / "ic_launcher_round.png", (sz, sz), is_circle=True)
 
     # 3. Java Source
     src_dir = BUILD_DIR / "src" / "com" / "cloudgpt" / "app"

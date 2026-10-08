@@ -205,18 +205,30 @@ button,input,select,textarea{font:inherit;color:inherit}
 .plan b{font-size:16px}.plan span{font-size:13px;color:var(--mu);margin-top:2px}
 .btn{border:0;border-radius:20px;background:var(--ac);color:var(--on);padding:11px 16px;font-weight:700;font-size:15px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
 
-/* Startup Auto-Update Animation Screen */
-#update-screen{position:absolute;inset:0;background:#090B18;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;transition:opacity .5s, transform .5s}
-#update-screen.fade-out{opacity:0;transform:scale(1.05);pointer-events:none}
-.update-box{display:flex;flex-direction:column;align-items:center;max-width:320px;width:100%;text-align:center}
-.update-logo{width:80px;height:80px;margin-bottom:20px;filter:drop-shadow(0 0 30px rgba(116,128,255,0.7));animation:logo-pulse 2s infinite ease-in-out}
-@keyframes logo-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-.update-title{font-size:22px;font-weight:800;margin:0 0 6px;letter-spacing:-0.3px}
-.update-subtitle{font-size:13.5px;color:var(--mu);margin:0 0 24px;min-height:20px}
-.update-bar-container{width:100%;background:rgba(255,255,255,0.08);border-radius:10px;height:8px;overflow:hidden;position:relative;margin-bottom:12px}
-.update-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--ac),#A855F7,#34D399);border-radius:10px;transition:width .2s ease-out;box-shadow:0 0 12px rgba(116,128,255,0.8)}
-.update-percent{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px}
-.update-status-step{font-size:12px;color:var(--mu);letter-spacing:0.2px}
+/* 3-Dots Thinking Animation */
+.thinking-dots{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;background:var(--bub);border-radius:18px 18px 18px 4px;margin-bottom:6px;width:fit-content;box-shadow:var(--sh)}
+.thinking-dots span{width:7px;height:7px;background:var(--ac);border-radius:50%;display:inline-block;animation:thinking-dot-bounce 1.3s infinite ease-in-out both}
+.thinking-dots span:nth-child(1){animation-delay:-0.32s}
+.thinking-dots span:nth-child(2){animation-delay:-0.16s}
+.thinking-dots span:nth-child(3){animation-delay:0s}
+@keyframes thinking-dot-bounce{0%,80%,100%{transform:scale(0.55);opacity:0.35}40%{transform:scale(1.2);opacity:1}}
+
+/* Modern Glassmorphic Update Modal */
+#update-modal{position:fixed;inset:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(12px);z-index:95;display:none;align-items:center;justify-content:center;padding:20px;transition:opacity .3s}
+#update-modal.open{display:flex}
+.update-dialog{background:rgba(21,24,48,0.94);border:1px solid var(--ln);border-radius:28px;max-width:340px;width:100%;padding:22px 20px;box-shadow:0 24px 64px rgba(0,0,0,0.7);text-align:center;position:relative}
+.update-header{display:flex;flex-direction:column;align-items:center;margin-bottom:14px}
+.update-logo{width:64px;height:64px;border-radius:22%;box-shadow:0 8px 24px rgba(116,128,255,0.35);margin-bottom:10px;object-fit:cover}
+.update-title{font-size:19px;font-weight:800;margin:0 0 4px;color:var(--tx)}
+.update-version-tag{display:inline-block;padding:3px 10px;border-radius:12px;background:var(--bub);color:var(--ac);font-size:12px;font-weight:700}
+.update-notes-box{background:rgba(13,15,32,0.6);border:1px solid var(--ln);border-radius:16px;padding:12px 14px;margin-bottom:14px;text-align:left;font-size:13px;color:var(--mu);display:flex;flex-direction:column;gap:7px}
+.update-note-item{display:flex;align-items:center;gap:8px}
+.update-bar-container{width:100%;background:rgba(255,255,255,0.08);border-radius:10px;height:7px;overflow:hidden;margin-bottom:6px}
+.update-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--ac),#34D399);border-radius:10px;transition:width .2s ease-out;box-shadow:0 0 10px rgba(116,128,255,0.8)}
+.update-status-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--mu);margin-bottom:14px}
+.update-actions{display:flex;gap:8px;width:100%}
+.update-actions .btn{flex:1;border-radius:16px;padding:11px 0}
+.btn-secondary{border:1px solid var(--ln);border-radius:16px;background:var(--bub);color:var(--tx);padding:11px 16px;font-weight:600;font-size:14px;cursor:pointer}
 
 /* Voice Assistant Fullscreen Overlay */
 #vo{align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top,0px) + 24px) 24px calc(env(safe-area-inset-bottom,0px) + 32px);background:radial-gradient(circle at 50% 40%,color-mix(in srgb,var(--ac) 28%,var(--bg)),var(--bg) 75%)}
@@ -250,7 +262,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 /* Google User Profile Card */
 .google-user-card{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--ln);border-radius:18px;background:var(--sf);margin-bottom:12px}
-.google-user-card img{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--ac)}
+.google-user-card img{width:46px;height:46px;border-radius:22%;object-fit:cover;border:2px solid var(--ac)}
 
 /* Real Google Sign-in Modal */
 #google-login-modal{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:90;display:none;align-items:center;justify-content:center;padding:20px}
@@ -260,7 +272,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .google-dialog p{font-size:13.5px;color:var(--mu);margin:0 0 18px}
 .google-acc-btn{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border:1px solid var(--ln);border-radius:16px;background:var(--bub);margin-bottom:10px;cursor:pointer;text-align:left;transition:background .15s}
 .google-acc-btn:hover{background:var(--ln)}
-.google-acc-btn img{width:36px;height:36px;border-radius:50%}
+.google-acc-btn img{width:36px;height:36px;border-radius:22%}
 
 #toast{position:absolute;left:50%;bottom:90px;transform:translate(-50%,16px);background:var(--tx);color:var(--bg);padding:9px 16px;border-radius:20px;font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;transition:.25s;z-index:50;white-space:nowrap;box-shadow:var(--sh)}
 #toast.on{opacity:1;transform:translate(-50%,0)}
@@ -289,17 +301,35 @@ button,input,select,textarea{font:inherit;color:inherit}
 <symbol id="gg" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.27A7.18 7.18 0 0 1 4.9 12c0-.79.14-1.57.38-2.27V6.58H1.25A11.96 11.96 0 0 0 0 12c0 1.92.45 3.74 1.25 5.42l4.03-3.15z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"/></symbol>
 </defs></svg>
 
-<!-- 1. Auto-Update Startup Animation Screen -->
-<div id="update-screen">
-  <div class="update-box">
-    <img src="favicon.png" alt="CloudGPT" class="update-logo">
-    <h2 class="update-title">CloudGPT</h2>
-    <div class="update-subtitle" id="update-sub">Проверка обновлений...</div>
-    <div class="update-bar-container">
+<!-- Modern Update Dialog Modal -->
+<div id="update-modal">
+  <div class="update-dialog">
+    <div class="update-header">
+      <img src="favicon.png" alt="CloudGPT" class="update-logo">
+      <h3 class="update-title">CloudGPT</h3>
+      <span class="update-version-tag" id="update-ver-tag">Версия 1.1.0</span>
+    </div>
+    
+    <div class="update-notes-box" id="update-notes-box">
+      <div class="update-note-item">⚡ Оптимизация скорости инференса и стриминга</div>
+      <div class="update-note-item">🧠 Индикатор рассуждения с 3 точками</div>
+      <div class="update-note-item">☁️ Синхронизация данных с Neon PostgreSQL</div>
+      <div class="update-note-item">🔐 Быстрый вход через аккаунт Google</div>
+    </div>
+
+    <div class="update-bar-container" id="update-bar-wrap" style="display:none;">
       <div class="update-bar-fill" id="update-bar"></div>
     </div>
-    <div class="update-percent" id="update-pct">0%</div>
-    <div class="update-status-step" id="update-step">Инициализация...</div>
+    
+    <div class="update-status-row" id="update-status-row" style="display:none;">
+      <span class="update-status-step" id="update-step">Загрузка...</span>
+      <span class="update-percent" id="update-pct">0%</span>
+    </div>
+
+    <div class="update-actions" id="update-actions">
+      <button class="btn" id="update-btn-start" onclick="startUpdateDownload()">Обновить сейчас</button>
+      <button class="btn-secondary" id="update-btn-cancel" onclick="closeUpdateModal()">Позже</button>
+    </div>
   </div>
 </div>
 
@@ -489,7 +519,7 @@ button,input,select,textarea{font:inherit;color:inherit}
         <span>Персональный интеллектуальный AI-ассистент</span>
       </div>
       
-      <button class="rw" onclick="runAutoUpdateAnimation(true)" style="margin-top:8px;">
+      <button class="rw" onclick="checkUpdatesManually()" style="margin-top:8px;">
         <span>Проверить обновления<br><small id="ver-badge" style="color:var(--suc);font-weight:600">Актуальная версия</small></span>
         <svg class="i"><use href="#rf"/></svg>
       </button>
@@ -770,17 +800,8 @@ async function generateImageFlow(rawPrompt){
   d.classList.add('ld');
   const bd = $('.bd', d);
   bd.innerHTML = `
-    <div class="reasoning-block thinking open">
-      <div class="reasoning-hdr">
-        <div class="reasoning-hdr-left">
-          <span class="reasoning-spinner"></span>
-          <span>🎨 CloudGPT</span>
-        </div>
-      </div>
-      <div class="reasoning-cnt" style="display:block">
-        <div class="reasoning-step"><span class="dot"></span><span>Анализ концепции: «${esc(prompt)}»</span></div>
-        <div class="reasoning-step"><span class="dot"></span><span>Генерация фотореалистичного изображения...</span></div>
-      </div>
+    <div class="thinking-dots">
+      <span></span><span></span><span></span>
     </div>
   `;
   end();
@@ -876,7 +897,7 @@ async function callGeminiDirect(query, imgData, messagesPayload, customSystemPro
 }
 
 // Ultra-Smooth Token / Streaming Typewriter Animation Engine
-async function streamTextToMessage(bd, fullText, reasoningHtml, abortSignal){
+async function streamTextToMessage(bd, fullText, abortSignal){
   let currentIndex = 0;
   const totalLen = fullText.length;
   
@@ -889,36 +910,15 @@ async function streamTextToMessage(bd, fullText, reasoningHtml, abortSignal){
     currentIndex = Math.min(currentIndex + chunkSize, totalLen);
     const partialText = fullText.slice(0, currentIndex);
     
-    bd.innerHTML = reasoningHtml + md.render(partialText) + '<span class="streaming-cursor"></span>';
+    bd.innerHTML = md.render(partialText) + '<span class="streaming-cursor"></span>';
     end();
     
     await new Promise(r => setTimeout(r, delayMs));
   }
 
   // Final clean render
-  bd.innerHTML = reasoningHtml + md.render(fullText);
+  bd.innerHTML = md.render(fullText);
   end();
-}
-
-function generateReasoningSteps(query, modelName){
-  const qL = (query || '').toLowerCase();
-  const steps = [];
-  
-  if(qL.includes('код') || qL.includes('чит') || qL.includes('паттерн') || qL.includes('скан') || qL.includes('c++') || qL.includes('rust') || qL.includes('python') || qL.includes('асм') || qL.includes('asm')){
-    steps.push('Анализ архитектурных требований и x86-64 соглашений о вызовах...');
-    steps.push('Построение оптимизированного AST и проверка безопасности указателей...');
-    steps.push('Генерация чистого отказоустойчивого кода с подсветкой синтаксиса...');
-  } else if(qL.includes('архитектур') || qL.includes('микросервис') || qL.includes('бд') || qL.includes('сервер')){
-    steps.push('Анализ требований к масштабируемости и отказоустойчивости...');
-    steps.push('Синтез схемы компонентов и коммуникационных протоколов...');
-    steps.push('Формирование структурированного архитектурного решения...');
-  } else {
-    steps.push(`Инициализация контекста модели ${modelName}...`);
-    steps.push('Семантический разбор запроса и выбор оптимальной логики ответа...');
-    steps.push('Синтез структурированного и понятного ответа...');
-  }
-  
-  return steps;
 }
 
 async function generateTextFlow(query, imgData){
@@ -926,26 +926,12 @@ async function generateTextFlow(query, imgData){
   d.classList.add('ld');
   const bd = $('.bd', d);
   
-  const selectedModelName = M[mi][0];
   const selectedModelId = M[mi][1];
-  const reasoningSteps = generateReasoningSteps(query, selectedModelName);
-  const startTime = Date.now();
 
-  // Dynamic Thinking Animation Box
-  const reasoningId = 'rs_' + Date.now();
+  // 3-Dots Thinking Animation
   bd.innerHTML = `
-    <div class="reasoning-block thinking open" id="${reasoningId}">
-      <div class="reasoning-hdr" onclick="this.parentElement.classList.toggle('open')">
-        <div class="reasoning-hdr-left">
-          <span class="reasoning-spinner"></span>
-          <span>🧠 Рассуждение ${esc(selectedModelName)}...</span>
-        </div>
-        <svg style="width:14px;height:14px;color:var(--mu);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-      </div>
-      <div class="reasoning-cnt" style="display:block">
-        <div class="reasoning-step"><span class="dot"></span><span>${reasoningSteps[0]}</span></div>
-        <div class="reasoning-step"><span class="dot"></span><span>${reasoningSteps[1]}</span></div>
-      </div>
+    <div class="thinking-dots">
+      <span></span><span></span><span></span>
     </div>
   `;
   end();
@@ -977,7 +963,7 @@ async function generateTextFlow(query, imgData){
 
   let replyText = '';
 
-  // 1. Попытка через Vision/Chat серверный API CloudGPT
+  // 1. Попытка через серверный API CloudGPT
   try {
     const srvResp = await fetch(getApiUrl('/api/chat'), {
       method: 'POST',
@@ -999,7 +985,7 @@ async function generateTextFlow(query, imgData){
     }
   } catch(e){}
 
-  // 2. Direct Gemini Intelligence Failover (100% надёжность)
+  // 2. Direct Gemini Intelligence Failover
   if(!replyText){
     replyText = await callGeminiDirect(query, imgData, messagesPayload, finalSystemPrompt);
   }
@@ -1045,28 +1031,8 @@ async function generateTextFlow(query, imgData){
     replyText = 'Запрос обработан. Готов продолжить диалог по вашей теме.';
   }
 
-  const elapsedSec = ((Date.now() - startTime) / 1000).toFixed(1);
-
-  // Collapsed finalized reasoning box HTML
-  const finalReasoningHtml = `
-    <div class="reasoning-block" id="${reasoningId}">
-      <div class="reasoning-hdr" onclick="this.parentElement.classList.toggle('open')">
-        <div class="reasoning-hdr-left">
-          <svg style="width:15px;height:15px;color:var(--suc);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
-          <span>Процесс рассуждения (${elapsedSec} сек)</span>
-        </div>
-        <svg style="width:14px;height:14px;color:var(--mu);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-      </div>
-      <div class="reasoning-cnt">
-        <div class="reasoning-step"><span class="dot"></span><span>${reasoningSteps[0]}</span></div>
-        <div class="reasoning-step"><span class="dot"></span><span>${reasoningSteps[1]}</span></div>
-        <div class="reasoning-step"><span class="dot"></span><span>${reasoningSteps[2]}</span></div>
-      </div>
-    </div>
-  `;
-
   // Run live streaming typewriter animation
-  await streamTextToMessage(bd, replyText, finalReasoningHtml, abortController ? abortController.signal : null);
+  await streamTextToMessage(bd, replyText, abortController ? abortController.signal : null);
 
   d.classList.remove('ld');
   C.m.push(['a', replyText, null, null, null]);
@@ -1079,46 +1045,81 @@ async function generateTextFlow(query, imgData){
 }
 
 // ----------------------------------------------------
-// AUTO-UPDATE STARTUP ANIMATION ENGINE
+// SMART AUTO-UPDATE SYSTEM
 // ----------------------------------------------------
-function runAutoUpdateAnimation(isManual = false){
-  const scr = $('#update-screen');
+const APP_CURRENT_VERSION = '1.1.0';
+
+function checkUpdatesOnStartup(){
+  const installed = localStorage.getItem('cloudgpt_installed_version');
+  if(!installed){
+    localStorage.setItem('cloudgpt_installed_version', APP_CURRENT_VERSION);
+  }
+}
+
+function checkUpdatesManually(){
+  shut();
+  const updateModal = $('#update-modal');
+  const verTag = $('#update-ver-tag');
+  const barWrap = $('#update-bar-wrap');
+  const statusRow = $('#update-status-row');
+  const btnStart = $('#update-btn-start');
+  const btnCancel = $('#update-btn-cancel');
+
+  verTag.textContent = `Версия ${APP_CURRENT_VERSION}`;
+  barWrap.style.display = 'none';
+  statusRow.style.display = 'none';
+  btnStart.style.display = 'block';
+  btnStart.textContent = 'Обновить компоненты';
+  btnStart.disabled = false;
+  btnCancel.textContent = 'Отмена';
+
+  updateModal.classList.add('open');
+}
+
+function closeUpdateModal(){
+  $('#update-modal').classList.remove('open');
+}
+
+function startUpdateDownload(){
+  const barWrap = $('#update-bar-wrap');
+  const statusRow = $('#update-status-row');
   const bar = $('#update-bar');
   const pct = $('#update-pct');
-  const sub = $('#update-sub');
   const step = $('#update-step');
+  const btnStart = $('#update-btn-start');
+  const btnCancel = $('#update-btn-cancel');
 
-  scr.classList.remove('fade-out');
-  sub.textContent = 'Проверка обновлений модели и базы...';
-  bar.style.width = '0%';
-  pct.textContent = '0%';
-  step.textContent = 'Подключение к шлюзу CloudGPT...';
+  barWrap.style.display = 'block';
+  statusRow.style.display = 'flex';
+  btnStart.disabled = true;
+  btnStart.textContent = 'Установка...';
 
   const stages = [
-    { p: 18, msg: 'Проверка целостности нейросетевых ядер...', s: 'Анализ весов' },
-    { p: 46, msg: 'Загрузка обновлений Vision и Voice DSP...', s: 'Скачивание компонентов' },
-    { p: 78, msg: 'Синхронизация алгоритмов программирования...', s: 'Обновление базы знаний' },
-    { p: 95, msg: 'Оптимизация кэша и компиляция шейдеров...', s: 'Финальная сборка' },
-    { p: 100, msg: 'Система успешно обновлена до v4.3.0!', s: 'Готово к работе' }
+    { p: 25, s: 'Проверка целостности компонентов...' },
+    { p: 55, s: 'Синхронизация базы знаний...' },
+    { p: 85, s: 'Оптимизация локального хранилища...' },
+    { p: 100, s: 'Все компоненты обновлены!' }
   ];
 
-  let currentStage = 0;
-  const interval = setInterval(() => {
-    if(currentStage < stages.length){
-      const st = stages[currentStage];
+  let idx = 0;
+  const timer = setInterval(() => {
+    if(idx < stages.length){
+      const st = stages[idx];
       bar.style.width = st.p + '%';
       pct.textContent = st.p + '%';
-      sub.textContent = st.msg;
       step.textContent = st.s;
-      currentStage++;
+      idx++;
     } else {
-      clearInterval(interval);
+      clearInterval(timer);
+      localStorage.setItem('cloudgpt_installed_version', APP_CURRENT_VERSION);
+      btnStart.style.display = 'none';
+      btnCancel.textContent = 'Готово';
+      toast('✅ Обновление успешно установлено!');
       setTimeout(() => {
-        scr.classList.add('fade-out');
-        if(isManual) toast('✅ Обновлено до версии 4.3.0');
-      }, 450);
+        closeUpdateModal();
+      }, 1200);
     }
-  }, 220);
+  }, 320);
 }
 
 // ----------------------------------------------------
@@ -1738,7 +1739,7 @@ window.addEventListener('DOMContentLoaded', () => {
   renderUserProfile();
   initVoiceEngine();
   loadKnowledgeBase();
-  runAutoUpdateAnimation(false);
+  checkUpdatesOnStartup();
   setTimeout(initGoogleAuth, 800);
 });
 </script>
